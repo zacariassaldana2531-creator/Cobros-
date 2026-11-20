@@ -44,6 +44,7 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 .add2{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}.add2 input{flex:1 1 140px}.add2 input.s{flex:0 0 76px;text-align:center}
 .acts .sub{width:100%}
 .low .m{color:var(--bad)}
+select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
 .u2{color:var(--mut);font-size:14px;padding-right:4px}
 </style></head><body>
 <div class="top"><div class="wrap">
@@ -86,6 +87,9 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 <div class="foot"><button class="g" id="pcp">Copiar pedidos</button></div>
 </div>
 <div id="v-e" style="display:none">
+<div class="bar" style="padding-top:12px"><select id="xls"></select></div>
+<div class="sub" id="xld" style="padding:0 14px 6px"></div>
+<div class="acts" style="padding:0 14px 6px"><button id="xnl">➕ Nueva lista</button><button class="g" id="xdl">Duplicar</button><button class="g" id="xrn">Renombrar</button><button class="g" id="xbl">Borrar lista</button></div>
 <div class="add2">
 <input id="xn" placeholder="Nombre del perfume" enterkeyhint="next">
 <input id="xo" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="done">
@@ -231,8 +235,15 @@ $("th").onclick=function(){
 };
 function ld(k){try{var s=localStorage.getItem(k),a=s?JSON.parse(s):[];return Array.isArray(a)?a:[]}catch(e){return[]}}
 function sv(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(e){}}
-var P=ld("pedidos-v1"),E=ld("esencias-v1");
-var pid=P.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1,eid=E.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1;
+var P=ld("pedidos-v1");
+var LS=ld("listas-perfumes-v1");
+if(!LS.length){LS=[{id:1,n:"Lista 1",t:Date.now(),items:ld("esencias-v1")}];sv("listas-perfumes-v1",LS)}
+var xsel=0;try{xsel=parseInt(localStorage.getItem("listas-sel-v1"),10)||0}catch(e){}
+function cl(){for(var i=0;i<LS.length;i++)if(LS[i].id===xsel)return LS[i];return LS[LS.length-1]}
+var E=cl().items;
+function svE(){cl().items=E;sv("listas-perfumes-v1",LS)}
+var pid=P.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1,eid=1;
+LS.forEach(function(l){l.items.forEach(function(r){eid=Math.max(eid,(r.id||0)+1)})});
 var hideDone=true,ES=["⏳ Pendiente","📦 Listo","✅ Entregado"];
 function oz(v){var n=parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""));return isNaN(n)?0:Math.round(n*100)/100}
 function fo(n){return String(Math.round(n*100)/100)}
@@ -247,7 +258,7 @@ function tab(t){
 }
 $("tc").onclick=function(){tab("c")};$("tp").onclick=function(){tab("p")};$("te").onclick=function(){tab("e")};
 function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
-function dl(){var L=$("esl");L.innerHTML="";E.slice().sort(cmp).forEach(function(r){var o=document.createElement("option");o.value=r.n;L.appendChild(o)})}
+function dl(){var L=$("esl");L.innerHTML="";var seen={};LS.forEach(function(l){l.items.forEach(function(r){var k=r.n.toLowerCase();if(!seen[k]){seen[k]=1;var o=document.createElement("option");o.value=r.n;L.appendChild(o)}})})}
 /* ===== PEDIDOS ===== */
 function hsP(){var a=0,d=0;P.forEach(function(r){if(!(r.s===2&&r.pg))a++;if(!r.pg)d+=r.m});$("hpn").textContent=a;$("hpd").textContent="RD$ "+fmt(d)}
 function oi(r){
@@ -311,22 +322,22 @@ $("pcp").onclick=function(){
  txt+="\nSIN PAGAR: RD$ "+fmt(d);copy(txt,$("pcp"),"Copiar pedidos");
 };
 /* ===== ESENCIAS ===== */
-function hsE(){var t=0,l=0;E.forEach(function(r){t+=r.o;if(r.o<=0)l++});$("heo").textContent=fo(t)+" oz";$("hen").textContent=E.length+" perfumes";$("hel").textContent=l}
+function hsE(){var t=0,l=0;E.forEach(function(r){t+=r.o;if(r.o<=0)l++});$("heo").textContent=fo(t)+" oz";$("hen").textContent=E.length+" perfumes · "+cl().n;$("hel").textContent=l}
 function ei(r){
  var d=mk("div","item"+(r.o<=0?" low":""));
  var row=mk("div","row");
  var n=mk("input","n");n.value=r.n;
- n.onchange=function(){r.n=n.value.trim()||r.n;sv("esencias-v1",E);rE()};
+ n.onchange=function(){r.n=n.value.trim()||r.n;svE();rE()};
  var m=mk("input","m");m.style.width="70px";m.setAttribute("inputmode","decimal");m.value=fo(r.o);
  m.onfocus=function(){m.select()};
- m.oninput=function(){r.o=oz(m.value);d.classList.toggle("low",r.o<=0);hsE();sv("esencias-v1",E)};
+ m.oninput=function(){r.o=oz(m.value);d.classList.toggle("low",r.o<=0);hsE();svE()};
  m.onblur=function(){m.value=fo(r.o)};
  var u=mk("span","u2","oz");
  var x=mk("button","x","✕");x.setAttribute("aria-label","Quitar");
- x.onclick=function(){if(confirm("¿Quitar el perfume "+r.n+"?")){E=E.filter(function(z){return z!==r});sv("esencias-v1",E);rE()}};
+ x.onclick=function(){if(confirm("¿Quitar el perfume "+r.n+"?")){E=E.filter(function(z){return z!==r});svE();rE()}};
  row.appendChild(n);row.appendChild(m);row.appendChild(u);row.appendChild(x);d.appendChild(row);
  var a=mk("div","acts");
- function step(dv){return function(){r.o=Math.max(0,Math.round((r.o+dv)*100)/100);m.value=fo(r.o);d.classList.toggle("low",r.o<=0);hsE();sv("esencias-v1",E)}}
+ function step(dv){return function(){r.o=Math.max(0,Math.round((r.o+dv)*100)/100);m.value=fo(r.o);d.classList.toggle("low",r.o<=0);hsE();svE()}}
  var b1=mk("button","g","− 1 oz"),b2=mk("button","g","+ 1 oz");b1.onclick=step(-1);b2.onclick=step(1);
  a.appendChild(b1);a.appendChild(b2);d.appendChild(a);return d;
 }
@@ -334,12 +345,12 @@ function rE(){
  var q=$("xs").value.trim().toLowerCase(),L=$("xl");L.innerHTML="";
  var rows=E.slice().sort(cmp).filter(function(r){return !q||r.n.toLowerCase().indexOf(q)>-1});
  if(!rows.length)L.innerHTML='<div class="empty">No hay perfumes</div>';
- rows.forEach(function(r){L.appendChild(ei(r))});hsE();
+ rows.forEach(function(r){L.appendChild(ei(r))});hsE();rL();
 }
 function addE(){
  var n=$("xn").value.trim();
  if(!n){$("xn").focus();return}
- E.push({id:eid++,n:n,o:oz($("xo").value)});sv("esencias-v1",E);$("xn").value="";$("xo").value="";$("xs").value="";rE();$("xn").focus();
+ E.push({id:eid++,n:n,o:oz($("xo").value)});svE();$("xn").value="";$("xo").value="";$("xs").value="";rE();$("xn").focus();
 }
 $("xa").onclick=addE;
 $("xn").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("xo").focus()}};
@@ -356,12 +367,43 @@ $("xg").onclick=function(){
   if(!nm||/^(total|inventario)/i.test(l))return;
   E.push({id:eid++,n:nm.trim().replace(/\s*[—–-]\s*$/,""),o:oz(ov)});c++;
  });
- sv("esencias-v1",E);rE();$("xc").onclick();alert(c+" perfumes agregados");
+ svE();rE();$("xc").onclick();alert(c+" perfumes agregados");
 };
 $("xcp").onclick=function(){
- var txt="INVENTARIO DE PERFUMES\n\n",t=0;
+ var txt="INVENTARIO DE PERFUMES · "+cl().n+" ("+fd(cl().t)+")\n\n",t=0;
  E.slice().sort(cmp).forEach(function(r,i){t+=r.o;txt+=(i+1)+". "+r.n+" — "+fo(r.o)+" oz\n"});
  txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar inventario");
+};
+
+/* ===== LISTAS DE PERFUMES ===== */
+function fds(t){try{return new Date(t).toLocaleDateString("es-DO",{day:"numeric",month:"short",year:"numeric"})}catch(e){return new Date(t).toDateString()}}
+function pick(l){xsel=l.id;try{localStorage.setItem("listas-sel-v1",String(xsel))}catch(e){}E=l.items;$("xs").value="";rE()}
+function nextId(){return LS.reduce(function(a,l){return Math.max(a,l.id)},0)+1}
+function rL(){
+ var S=$("xls");S.innerHTML="";var cur=cl();
+ LS.slice().reverse().forEach(function(l){var o=document.createElement("option");o.value=l.id;o.textContent=l.n+" · "+fds(l.t);if(l===cur)o.selected=true;S.appendChild(o)});
+ $("xld").textContent="Creada: "+fd(cur.t)+" · "+cur.items.length+" perfumes";
+}
+$("xls").onchange=function(){var id=parseInt(this.value,10);LS.forEach(function(l){if(l.id===id)pick(l)})};
+$("xnl").onclick=function(){
+ var n=prompt("Nombre de la nueva lista (vacío = Lista "+(LS.length+1)+")","");
+ if(n===null)return;
+ var l={id:nextId(),n:n.trim()||"Lista "+(LS.length+1),t:Date.now(),items:[]};
+ LS.push(l);sv("listas-perfumes-v1",LS);pick(l);
+};
+$("xdl").onclick=function(){
+ var c=cl(),l={id:nextId(),n:"Copia de "+c.n,t:Date.now(),items:c.items.map(function(r){return{id:eid++,n:r.n,o:r.o}})};
+ LS.push(l);sv("listas-perfumes-v1",LS);pick(l);
+};
+$("xrn").onclick=function(){
+ var c=cl(),n=prompt("Nuevo nombre de la lista",c.n);
+ if(n===null||!n.trim())return;c.n=n.trim();sv("listas-perfumes-v1",LS);rE();
+};
+$("xbl").onclick=function(){
+ var c=cl();
+ if(LS.length<2){alert("Tiene que quedar al menos una lista");return}
+ if(!confirm("¿Borrar la lista "+c.n+" con sus "+c.items.length+" perfumes? No se puede deshacer."))return;
+ LS=LS.filter(function(l){return l!==c});sv("listas-perfumes-v1",LS);pick(LS[LS.length-1]);
 };
 
 render();
