@@ -55,10 +55,10 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 <div id="hs-p" style="display:none"><div class="lbl">MAISON SALDANA · Pedidos de perfumes</div>
 <div class="stats"><div><div class="tot" id="hpn">0</div><div class="sub">pedidos activos</div></div>
 <div class="cob"><div class="lbl">Sin pagar</div><div class="v" id="hpd" style="color:var(--bad)">RD$ 0</div></div></div></div>
-<div id="hs-e" style="display:none"><div class="lbl">MAISON SALDANA · Esencias</div>
+<div id="hs-e" style="display:none"><div class="lbl">MAISON SALDANA · Perfumes</div>
 <div class="stats"><div><div class="tot" id="heo">0 oz</div><div class="sub" id="hen"></div></div>
-<div class="cob"><div class="lbl">Stock bajo (1 oz o menos)</div><div class="v" id="hel" style="color:var(--bad)">0</div></div></div></div>
-<div class="tabs"><button class="on" id="tc">💵 Cobros</button><button class="g" id="tp">🧾 Pedidos</button><button class="g" id="te">🧴 Esencias</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
+<div class="cob"><div class="lbl">Agotados (0 oz)</div><div class="v" id="hel" style="color:var(--bad)">0</div></div></div></div>
+<div class="tabs"><button class="on" id="tc">💵 Cobros</button><button class="g" id="tp">🧾 Pedidos</button><button class="g" id="te">🧴 Perfumes</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
 </div></div>
 <div class="wrap">
 <div id="v-c">
@@ -87,14 +87,14 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 </div>
 <div id="v-e" style="display:none">
 <div class="add2">
-<input id="xn" placeholder="Nombre de la esencia" enterkeyhint="next">
+<input id="xn" placeholder="Nombre del perfume" enterkeyhint="next">
 <input id="xo" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="done">
 <button id="xa">Agregar</button>
 </div>
-<div class="bar"><input id="xs" type="search" placeholder="Buscar esencia…"></div>
+<div class="bar"><input id="xs" type="search" placeholder="Buscar perfume…"></div>
 <div id="xl"></div>
-<div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, una esencia por línea:&#10;Oud Royal 2.5&#10;Vainilla 1" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="xi">Importar esencias</button><button class="g" id="xcp">Copiar inventario</button></div>
+<div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, un perfume por línea:&#10;1oz Versace Eros&#10;2oz Delina" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
+<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar inventario</button></div>
 </div>
 </div>
 <script>
@@ -311,29 +311,29 @@ $("pcp").onclick=function(){
  txt+="\nSIN PAGAR: RD$ "+fmt(d);copy(txt,$("pcp"),"Copiar pedidos");
 };
 /* ===== ESENCIAS ===== */
-function hsE(){var t=0,l=0;E.forEach(function(r){t+=r.o;if(r.o<=1)l++});$("heo").textContent=fo(t)+" oz";$("hen").textContent=E.length+" esencias";$("hel").textContent=l}
+function hsE(){var t=0,l=0;E.forEach(function(r){t+=r.o;if(r.o<=0)l++});$("heo").textContent=fo(t)+" oz";$("hen").textContent=E.length+" perfumes";$("hel").textContent=l}
 function ei(r){
- var d=mk("div","item"+(r.o<=1?" low":""));
+ var d=mk("div","item"+(r.o<=0?" low":""));
  var row=mk("div","row");
  var n=mk("input","n");n.value=r.n;
  n.onchange=function(){r.n=n.value.trim()||r.n;sv("esencias-v1",E);rE()};
  var m=mk("input","m");m.style.width="70px";m.setAttribute("inputmode","decimal");m.value=fo(r.o);
  m.onfocus=function(){m.select()};
- m.oninput=function(){r.o=oz(m.value);d.classList.toggle("low",r.o<=1);hsE();sv("esencias-v1",E)};
+ m.oninput=function(){r.o=oz(m.value);d.classList.toggle("low",r.o<=0);hsE();sv("esencias-v1",E)};
  m.onblur=function(){m.value=fo(r.o)};
  var u=mk("span","u2","oz");
  var x=mk("button","x","✕");x.setAttribute("aria-label","Quitar");
- x.onclick=function(){if(confirm("¿Quitar la esencia "+r.n+"?")){E=E.filter(function(z){return z!==r});sv("esencias-v1",E);rE()}};
+ x.onclick=function(){if(confirm("¿Quitar el perfume "+r.n+"?")){E=E.filter(function(z){return z!==r});sv("esencias-v1",E);rE()}};
  row.appendChild(n);row.appendChild(m);row.appendChild(u);row.appendChild(x);d.appendChild(row);
  var a=mk("div","acts");
- function step(dv){return function(){r.o=Math.max(0,Math.round((r.o+dv)*100)/100);m.value=fo(r.o);d.classList.toggle("low",r.o<=1);hsE();sv("esencias-v1",E)}}
- var b1=mk("button","g","− 0.5 oz"),b2=mk("button","g","+ 0.5 oz");b1.onclick=step(-0.5);b2.onclick=step(0.5);
+ function step(dv){return function(){r.o=Math.max(0,Math.round((r.o+dv)*100)/100);m.value=fo(r.o);d.classList.toggle("low",r.o<=0);hsE();sv("esencias-v1",E)}}
+ var b1=mk("button","g","− 1 oz"),b2=mk("button","g","+ 1 oz");b1.onclick=step(-1);b2.onclick=step(1);
  a.appendChild(b1);a.appendChild(b2);d.appendChild(a);return d;
 }
 function rE(){
  var q=$("xs").value.trim().toLowerCase(),L=$("xl");L.innerHTML="";
  var rows=E.slice().sort(cmp).filter(function(r){return !q||r.n.toLowerCase().indexOf(q)>-1});
- if(!rows.length)L.innerHTML='<div class="empty">No hay esencias</div>';
+ if(!rows.length)L.innerHTML='<div class="empty">No hay perfumes</div>';
  rows.forEach(function(r){L.appendChild(ei(r))});hsE();
 }
 function addE(){
@@ -351,14 +351,15 @@ $("xg").onclick=function(){
  var c=0;
  $("xt").value.split(/\n/).forEach(function(l){
   l=l.replace(/^\s*\d+[.)]\s+/,"").trim();
-  var m=l.match(/^(.*\S)\s+(\d+(?:[.,]\d+)?)\s*(?:oz)?$/i);
-  if(!m||/^(total|inventario)/i.test(l))return;
-  E.push({id:eid++,n:m[1].replace(/\s*[—–-]\s*$/,""),o:oz(m[2])});c++;
+  var m=l.match(/^(\d+(?:[.,]\d+)?)\s*oz\.?\s+(.+)$/i),nm,ov;
+  if(m){ov=m[1];nm=m[2]}else{m=l.match(/^(.*\S)\s+(\d+(?:[.,]\d+)?)\s*(?:oz)?$/i);if(m){nm=m[1];ov=m[2]}}
+  if(!nm||/^(total|inventario)/i.test(l))return;
+  E.push({id:eid++,n:nm.trim().replace(/\s*[—–-]\s*$/,""),o:oz(ov)});c++;
  });
- sv("esencias-v1",E);rE();$("xc").onclick();alert(c+" esencias agregadas");
+ sv("esencias-v1",E);rE();$("xc").onclick();alert(c+" perfumes agregados");
 };
 $("xcp").onclick=function(){
- var txt="INVENTARIO DE ESENCIAS\n\n",t=0;
+ var txt="INVENTARIO DE PERFUMES\n\n",t=0;
  E.slice().sort(cmp).forEach(function(r,i){t+=r.o;txt+=(i+1)+". "+r.n+" — "+fo(r.o)+" oz\n"});
  txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar inventario");
 };
