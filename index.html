@@ -40,13 +40,28 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 .h b{color:var(--ok)}.h .u{background:transparent;color:var(--mut);padding:4px 8px;font-size:16px}
 .foot{display:flex;gap:8px;padding:8px 14px 24px;flex-wrap:wrap}.foot button{flex:1;min-width:140px}
 .empty{text-align:center;color:var(--mut);padding:24px}
+.tabs{display:flex;gap:6px;margin-top:10px}.tabs button{flex:1;padding:8px 6px;font-size:14px}
+.add2{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}.add2 input{flex:1 1 140px}.add2 input.s{flex:0 0 76px;text-align:center}
+.acts .sub{width:100%}
+.low .m{color:var(--bad)}
+.u2{color:var(--mut);font-size:14px;padding-right:4px}
 </style></head><body>
 <div class="top"><div class="wrap">
+<div id="hs-c">
 <div class="lbl">MAISON SALDANA · Por cobrar</div>
 <div class="stats"><div><div class="tot" id="tot">RD$ 0</div><div class="sub" id="cnt"></div></div>
 <div class="cob"><div class="lbl">Cobrado</div><div class="v" id="cob">RD$ 0</div></div></div>
+</div>
+<div id="hs-p" style="display:none"><div class="lbl">MAISON SALDANA · Pedidos de perfumes</div>
+<div class="stats"><div><div class="tot" id="hpn">0</div><div class="sub">pedidos activos</div></div>
+<div class="cob"><div class="lbl">Sin pagar</div><div class="v" id="hpd" style="color:var(--bad)">RD$ 0</div></div></div></div>
+<div id="hs-e" style="display:none"><div class="lbl">MAISON SALDANA · Esencias</div>
+<div class="stats"><div><div class="tot" id="heo">0 oz</div><div class="sub" id="hen"></div></div>
+<div class="cob"><div class="lbl">Stock bajo (1 oz o menos)</div><div class="v" id="hel" style="color:var(--bad)">0</div></div></div></div>
+<div class="tabs"><button class="on" id="tc">💵 Cobros</button><button class="g" id="tp">🧾 Pedidos</button><button class="g" id="te">🧴 Esencias</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
 </div></div>
 <div class="wrap">
+<div id="v-c">
 <div class="add">
 <input id="nn" placeholder="Nombre" autocapitalize="words" enterkeyhint="next">
 <input id="nm" class="m" placeholder="Monto" inputmode="numeric" enterkeyhint="done">
@@ -55,7 +70,32 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 <div class="bar"><input id="q" type="search" placeholder="Buscar nombre…"><button class="g" id="hp">Ocultar saldados</button></div>
 <div id="list"></div>
 <div id="ip" style="display:none;padding:0 14px 8px"><textarea id="it" rows="8" placeholder="Pega aquí la lista, una persona por línea:&#10;Juan 800&#10;Pedro 1,000" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="ig">Agregar a la lista</button><button class="g" id="ic">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="im">Importar lista</button><button class="g" id="cp">Copiar lista</button><button class="g" id="cg">Copiar pagos</button><button class="g" id="th">Modo claro/oscuro</button></div>
+<div class="foot"><button class="g" id="im">Importar lista</button><button class="g" id="cp">Copiar lista</button><button class="g" id="cg">Copiar pagos</button></div>
+</div>
+<div id="v-p" style="display:none">
+<div class="add2">
+<input id="pc" placeholder="Cliente" autocapitalize="words" enterkeyhint="next">
+<input id="pp" placeholder="Perfume" list="esl" enterkeyhint="next">
+<input id="pq" class="s" placeholder="Cant." inputmode="numeric" enterkeyhint="next">
+<input id="pm" placeholder="Total RD$" inputmode="numeric" enterkeyhint="done">
+<button id="pa">Agregar pedido</button>
+</div>
+<datalist id="esl"></datalist>
+<div class="bar"><input id="ps" type="search" placeholder="Buscar cliente o perfume…"><button class="g" id="ph">Ocultar completados</button></div>
+<div id="pl"></div>
+<div class="foot"><button class="g" id="pcp">Copiar pedidos</button></div>
+</div>
+<div id="v-e" style="display:none">
+<div class="add2">
+<input id="xn" placeholder="Nombre de la esencia" enterkeyhint="next">
+<input id="xo" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="done">
+<button id="xa">Agregar</button>
+</div>
+<div class="bar"><input id="xs" type="search" placeholder="Buscar esencia…"></div>
+<div id="xl"></div>
+<div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, una esencia por línea:&#10;Oud Royal 2.5&#10;Vainilla 1" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
+<div class="foot"><button class="g" id="xi">Importar esencias</button><button class="g" id="xcp">Copiar inventario</button></div>
+</div>
 </div>
 <script>
 var KEY="cuentas-por-cobrar-v1";
@@ -95,7 +135,7 @@ function item(r){
  var m=document.createElement("input");m.className="m";m.setAttribute("inputmode","numeric");m.value=fmt(r.m);
  m.onfocus=function(){m.select()};
  m.oninput=function(){r.m=num(m.value);total();save()};
- m.onblur=function(){m.value=fmt(r.m);render()};
+ m.onblur=function(){m.value=fmt(r.m);d.classList.toggle("paid",r.m<=0)};
  var x=document.createElement("button");x.className="x";x.textContent="✕";x.setAttribute("aria-label","Quitar");
  x.onclick=function(){if(confirm("¿Quitar a "+r.n+" de la lista? Se borra también su historial de pagos.")){data=data.filter(function(z){return z!==r});save();render()}};
  row.appendChild(n);row.appendChild(m);row.appendChild(x);d.appendChild(row);
@@ -189,6 +229,140 @@ $("th").onclick=function(){
  var r=document.documentElement,dk=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
  r.setAttribute("data-theme",dk?"light":"dark");
 };
+function ld(k){try{var s=localStorage.getItem(k),a=s?JSON.parse(s):[];return Array.isArray(a)?a:[]}catch(e){return[]}}
+function sv(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(e){}}
+var P=ld("pedidos-v1"),E=ld("esencias-v1");
+var pid=P.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1,eid=E.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1;
+var hideDone=true,ES=["⏳ Pendiente","📦 Listo","✅ Entregado"];
+function oz(v){var n=parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""));return isNaN(n)?0:Math.round(n*100)/100}
+function fo(n){return String(Math.round(n*100)/100)}
+function tab(t){
+ ["c","p","e"].forEach(function(k){
+  $("v-"+k).style.display=k===t?"block":"none";
+  $("hs-"+k).style.display=k===t?"block":"none";
+  $("t"+k).className=k===t?"on":"g";
+ });
+ if(t==="c")render();else if(t==="p")rP();else rE();
+ window.scrollTo(0,0);
+}
+$("tc").onclick=function(){tab("c")};$("tp").onclick=function(){tab("p")};$("te").onclick=function(){tab("e")};
+function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+function dl(){var L=$("esl");L.innerHTML="";E.slice().sort(cmp).forEach(function(r){var o=document.createElement("option");o.value=r.n;L.appendChild(o)})}
+/* ===== PEDIDOS ===== */
+function hsP(){var a=0,d=0;P.forEach(function(r){if(!(r.s===2&&r.pg))a++;if(!r.pg)d+=r.m});$("hpn").textContent=a;$("hpd").textContent="RD$ "+fmt(d)}
+function oi(r){
+ var d=mk("div","item"+(r.s===2&&r.pg?" paid":""));
+ var row=mk("div","row");
+ var c=mk("input","n");c.value=r.c;c.placeholder="Cliente";
+ c.onchange=function(){r.c=c.value.trim()||r.c;sv("pedidos-v1",P);rP()};
+ var m=mk("input","m");m.setAttribute("inputmode","numeric");m.placeholder="Total";m.value=fmt(r.m);
+ m.onfocus=function(){m.select()};
+ m.oninput=function(){r.m=num(m.value);hsP();sv("pedidos-v1",P)};
+ m.onblur=function(){m.value=fmt(r.m)};
+ var x=mk("button","x","✕");x.setAttribute("aria-label","Quitar");
+ x.onclick=function(){if(confirm("¿Quitar el pedido de "+r.c+"?")){P=P.filter(function(z){return z!==r});sv("pedidos-v1",P);rP()}};
+ row.appendChild(c);row.appendChild(m);row.appendChild(x);d.appendChild(row);
+ var r2=mk("div","row");
+ var p=mk("input","n");p.value=r.p;p.placeholder="Perfume";p.setAttribute("list","esl");
+ p.onchange=function(){r.p=p.value.trim();sv("pedidos-v1",P)};
+ var q=mk("input","m");q.style.width="56px";q.setAttribute("inputmode","numeric");q.placeholder="Cant.";q.value=r.q;
+ q.onfocus=function(){q.select()};
+ q.oninput=function(){r.q=num(q.value)||1;sv("pedidos-v1",P)};
+ q.onblur=function(){q.value=r.q};
+ r2.appendChild(p);r2.appendChild(q);d.appendChild(r2);
+ var a=mk("div","acts");
+ var bs=mk("button","g",ES[r.s]);
+ bs.onclick=function(){r.s=(r.s+1)%3;r.td=r.s===2?Date.now():null;sv("pedidos-v1",P);rP()};
+ var bg=mk("button","g",r.pg?"✓ Pagado":"💰 Sin pagar");if(r.pg)bg.style.color="var(--ok)";
+ bg.onclick=function(){r.pg=!r.pg;r.tp=r.pg?Date.now():null;sv("pedidos-v1",P);rP()};
+ a.appendChild(bs);a.appendChild(bg);
+ a.appendChild(mk("div","sub","Pedido: "+fd(r.t)+(r.td?" · Entregado: "+fd(r.td):"")+(r.tp?" · Pagado: "+fd(r.tp):"")));
+ d.appendChild(a);return d;
+}
+function rP(){
+ var q=$("ps").value.trim().toLowerCase(),L=$("pl");L.innerHTML="";dl();
+ var rows=P.slice().sort(function(a,b){return b.t-a.t}).filter(function(r){
+  return !(hideDone&&r.s===2&&r.pg)&&(!q||(r.c+" "+r.p).toLowerCase().indexOf(q)>-1)});
+ if(!rows.length)L.innerHTML='<div class="empty">No hay pedidos</div>';
+ rows.forEach(function(r){L.appendChild(oi(r))});
+ $("ph").textContent=hideDone?"Ver completados":"Ocultar completados";hsP();
+}
+function addP(){
+ var c=$("pc").value.trim(),pf=$("pp").value.trim();
+ if(!c){$("pc").focus();return}
+ if(!pf){$("pp").focus();return}
+ P.push({id:pid++,c:c,p:pf,q:num($("pq").value)||1,m:num($("pm").value),s:0,pg:false,t:Date.now()});
+ sv("pedidos-v1",P);["pc","pp","pq","pm"].forEach(function(i){$(i).value=""});$("ps").value="";rP();$("pc").focus();
+}
+$("pa").onclick=addP;
+$("pc").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pp").focus()}};
+$("pp").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pq").focus()}};
+$("pq").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pm").focus()}};
+$("pm").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();addP()}};
+$("pm").oninput=function(){money($("pm"))};
+$("ps").oninput=rP;
+$("ph").onclick=function(){hideDone=!hideDone;rP()};
+$("pcp").onclick=function(){
+ var txt="PEDIDOS\n\n",n=0,d=0;
+ P.slice().sort(function(a,b){return a.t-b.t}).forEach(function(r){
+  if(r.s===2&&r.pg)return;n++;if(!r.pg)d+=r.m;
+  txt+=n+". "+r.c+" · "+r.q+" × "+r.p+" · RD$ "+fmt(r.m)+" · "+ES[r.s].replace(/^\S+\s/,"")+" · "+(r.pg?"Pagado":"Sin pagar")+" · "+fd(r.t)+"\n";
+ });
+ txt+="\nSIN PAGAR: RD$ "+fmt(d);copy(txt,$("pcp"),"Copiar pedidos");
+};
+/* ===== ESENCIAS ===== */
+function hsE(){var t=0,l=0;E.forEach(function(r){t+=r.o;if(r.o<=1)l++});$("heo").textContent=fo(t)+" oz";$("hen").textContent=E.length+" esencias";$("hel").textContent=l}
+function ei(r){
+ var d=mk("div","item"+(r.o<=1?" low":""));
+ var row=mk("div","row");
+ var n=mk("input","n");n.value=r.n;
+ n.onchange=function(){r.n=n.value.trim()||r.n;sv("esencias-v1",E);rE()};
+ var m=mk("input","m");m.style.width="70px";m.setAttribute("inputmode","decimal");m.value=fo(r.o);
+ m.onfocus=function(){m.select()};
+ m.oninput=function(){r.o=oz(m.value);d.classList.toggle("low",r.o<=1);hsE();sv("esencias-v1",E)};
+ m.onblur=function(){m.value=fo(r.o)};
+ var u=mk("span","u2","oz");
+ var x=mk("button","x","✕");x.setAttribute("aria-label","Quitar");
+ x.onclick=function(){if(confirm("¿Quitar la esencia "+r.n+"?")){E=E.filter(function(z){return z!==r});sv("esencias-v1",E);rE()}};
+ row.appendChild(n);row.appendChild(m);row.appendChild(u);row.appendChild(x);d.appendChild(row);
+ var a=mk("div","acts");
+ function step(dv){return function(){r.o=Math.max(0,Math.round((r.o+dv)*100)/100);m.value=fo(r.o);d.classList.toggle("low",r.o<=1);hsE();sv("esencias-v1",E)}}
+ var b1=mk("button","g","− 0.5 oz"),b2=mk("button","g","+ 0.5 oz");b1.onclick=step(-0.5);b2.onclick=step(0.5);
+ a.appendChild(b1);a.appendChild(b2);d.appendChild(a);return d;
+}
+function rE(){
+ var q=$("xs").value.trim().toLowerCase(),L=$("xl");L.innerHTML="";
+ var rows=E.slice().sort(cmp).filter(function(r){return !q||r.n.toLowerCase().indexOf(q)>-1});
+ if(!rows.length)L.innerHTML='<div class="empty">No hay esencias</div>';
+ rows.forEach(function(r){L.appendChild(ei(r))});hsE();
+}
+function addE(){
+ var n=$("xn").value.trim();
+ if(!n){$("xn").focus();return}
+ E.push({id:eid++,n:n,o:oz($("xo").value)});sv("esencias-v1",E);$("xn").value="";$("xo").value="";$("xs").value="";rE();$("xn").focus();
+}
+$("xa").onclick=addE;
+$("xn").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("xo").focus()}};
+$("xo").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();addE()}};
+$("xs").oninput=rE;
+$("xi").onclick=function(){$("xp").style.display="block";$("xt").focus()};
+$("xc").onclick=function(){$("xp").style.display="none";$("xt").value=""};
+$("xg").onclick=function(){
+ var c=0;
+ $("xt").value.split(/\n/).forEach(function(l){
+  l=l.replace(/^\s*\d+[.)]\s+/,"").trim();
+  var m=l.match(/^(.*\S)\s+(\d+(?:[.,]\d+)?)\s*(?:oz)?$/i);
+  if(!m||/^(total|inventario)/i.test(l))return;
+  E.push({id:eid++,n:m[1].replace(/\s*[—–-]\s*$/,""),o:oz(m[2])});c++;
+ });
+ sv("esencias-v1",E);rE();$("xc").onclick();alert(c+" esencias agregadas");
+};
+$("xcp").onclick=function(){
+ var txt="INVENTARIO DE ESENCIAS\n\n",t=0;
+ E.slice().sort(cmp).forEach(function(r,i){t+=r.o;txt+=(i+1)+". "+r.n+" — "+fo(r.o)+" oz\n"});
+ txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar inventario");
+};
+
 render();
 if(fixed.length)alert("Corregí "+fixed.length+" nombre(s) que traían el monto pegado: "+fixed.join(", ")+". Revisa que los montos estén bien.");
 </script></body></html>
