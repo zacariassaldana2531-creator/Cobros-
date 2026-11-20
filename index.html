@@ -15,24 +15,36 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .lbl{color:var(--mut);font-size:13px}
 .tot{font-size:34px;font-weight:700;letter-spacing:-.5px}
 .sub{color:var(--mut);font-size:13px}
+.stats{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.cob{text-align:right}.cob .v{font-size:20px;font-weight:700;color:var(--ok)}
 .wrap{max-width:560px;margin:0 auto}
 .add{display:flex;gap:8px;padding:12px 14px}
-input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
+input,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
 .add input:first-child{flex:1}.add input.m{width:96px;text-align:right}
 button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--ac);color:var(--acx);font-weight:600}
 button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 .bar{display:flex;gap:8px;padding:0 14px 8px}.bar input{flex:1}
-.row{display:flex;gap:8px;align-items:center;margin:0 14px 8px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px}
+.item{margin:0 14px 8px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px}
+.row{display:flex;gap:8px;align-items:center}
 .row input{border:0;background:transparent;padding:8px}
 .row .n{flex:1}.row .m{width:96px;text-align:right;font-weight:600}
+.paid .n,.paid .m{opacity:.5}
 .x{background:transparent;color:var(--bad);padding:8px 10px;font-size:18px}
-.foot{display:flex;gap:8px;padding:8px 14px 24px}.foot button{flex:1}
+.acts{display:flex;gap:6px;padding:0 4px 4px;align-items:center;flex-wrap:wrap}
+.acts button{padding:6px 10px;font-size:14px}
+.badge{color:var(--ok);font-size:13px;font-weight:600}
+.pay{display:flex;gap:6px;padding:4px;flex-wrap:wrap}.pay input{flex:1;min-width:110px}
+.hist{padding:4px 6px 6px;border-top:1px dashed var(--bd);margin-top:4px}
+.h{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.h:last-child{border-bottom:0}.h .d{flex:1}.h .d small{display:block;color:var(--mut)}
+.h b{color:var(--ok)}.h .u{background:transparent;color:var(--mut);padding:4px 8px;font-size:16px}
+.foot{display:flex;gap:8px;padding:8px 14px 24px;flex-wrap:wrap}.foot button{flex:1;min-width:140px}
 .empty{text-align:center;color:var(--mut);padding:24px}
 </style></head><body>
 <div class="top"><div class="wrap">
-<div class="lbl">MAISON SALDANA · Total por cobrar</div>
-<div class="tot" id="tot">RD$ 0</div>
-<div class="sub" id="cnt"></div>
+<div class="lbl">MAISON SALDANA · Por cobrar</div>
+<div class="stats"><div><div class="tot" id="tot">RD$ 0</div><div class="sub" id="cnt"></div></div>
+<div class="cob"><div class="lbl">Cobrado</div><div class="v" id="cob">RD$ 0</div></div></div>
 </div></div>
 <div class="wrap">
 <div class="add">
@@ -40,63 +52,121 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 <input id="nm" class="m" placeholder="Monto" inputmode="numeric" enterkeyhint="done">
 <button id="ab">Agregar</button>
 </div>
-<div class="bar"><input id="q" type="search" placeholder="Buscar nombre…"></div>
+<div class="bar"><input id="q" type="search" placeholder="Buscar nombre…"><button class="g" id="hp">Ocultar saldados</button></div>
 <div id="list"></div>
-<div id="ip" style="display:none;padding:0 14px 8px"><textarea id="it" rows="8" placeholder="Pega aquí la lista, una persona por línea:&#10;Juan 800&#10;Pedro 1,000" style="width:100%;font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="ig">Agregar a la lista</button><button class="g" id="ic">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="im">Importar lista</button><button class="g" id="cp">Copiar lista</button><button class="g" id="th">Modo claro/oscuro</button></div>
+<div id="ip" style="display:none;padding:0 14px 8px"><textarea id="it" rows="8" placeholder="Pega aquí la lista, una persona por línea:&#10;Juan 800&#10;Pedro 1,000" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="ig">Agregar a la lista</button><button class="g" id="ic">Cancelar</button></div></div>
+<div class="foot"><button class="g" id="im">Importar lista</button><button class="g" id="cp">Copiar lista</button><button class="g" id="cg">Copiar pagos</button><button class="g" id="th">Modo claro/oscuro</button></div>
 </div>
 <script>
 var KEY="cuentas-por-cobrar-v1";
-var seed=[];
 var data=[];
 try{var s=localStorage.getItem(KEY);data=s?JSON.parse(s):null}catch(e){data=null}
-if(!Array.isArray(data)){data=seed.map(function(r,i){return{id:i+1,n:r[0],m:r[1]}})}
-var nid=data.reduce(function(a,r){return Math.max(a,r.id)},0)+1;
+if(!Array.isArray(data))data=[];
+data.forEach(function(r){if(!Array.isArray(r.p))r.p=[]});
+var nid=data.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1;
+var open={},hide=false;
 var $=function(i){return document.getElementById(i)};
 var fmt=function(n){return Number(n||0).toLocaleString("en-US")};
 var num=function(v){return parseInt(String(v).replace(/\D/g,""),10)||0};
+function fd(t){try{return new Date(t).toLocaleString("es-DO",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})}catch(e){return new Date(t).toString()}}
+function cmp(a,b){return a.n.localeCompare(b.n,"es",{sensitivity:"base"})}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
-function total(){var t=0;data.forEach(function(r){t+=r.m});$("tot").textContent="RD$ "+fmt(t);$("cnt").textContent=data.length+" personas";}
+function total(){
+ var t=0,c=0,k=0;
+ data.forEach(function(r){t+=r.m;if(r.m>0)c++;r.p.forEach(function(e){k+=e.a})});
+ $("tot").textContent="RD$ "+fmt(t);$("cob").textContent="RD$ "+fmt(k);
+ $("cnt").textContent=c+" personas con saldo";
+}
+function money(el){var v=num(el.value);el.value=v?fmt(v):""}
+function pay(r,ap){
+ if(ap<=0){alert("Esta persona no tiene saldo pendiente");return}
+ r.m-=ap;r.p.push({a:ap,t:Date.now()});open[r.id]="hist";save();render();
+}
+function item(r){
+ var d=document.createElement("div");d.className="item"+(r.m<=0?" paid":"");
+ var row=document.createElement("div");row.className="row";
+ var n=document.createElement("input");n.className="n";n.value=r.n;
+ n.onchange=function(){r.n=n.value.trim()||r.n;save();render()};
+ var m=document.createElement("input");m.className="m";m.setAttribute("inputmode","numeric");m.value=fmt(r.m);
+ m.onfocus=function(){m.select()};
+ m.oninput=function(){r.m=num(m.value);total();save()};
+ m.onblur=function(){m.value=fmt(r.m);render()};
+ var x=document.createElement("button");x.className="x";x.textContent="✕";x.setAttribute("aria-label","Quitar");
+ x.onclick=function(){if(confirm("¿Quitar a "+r.n+" de la lista? Se borra también su historial de pagos.")){data=data.filter(function(z){return z!==r});save();render()}};
+ row.appendChild(n);row.appendChild(m);row.appendChild(x);d.appendChild(row);
+ var a=document.createElement("div");a.className="acts";
+ var bp=document.createElement("button");bp.className="g";bp.textContent="💵 Pago";
+ bp.onclick=function(){open[r.id]=open[r.id]==="pay"?"":"pay";render()};a.appendChild(bp);
+ if(r.p.length){var bh=document.createElement("button");bh.className="g";bh.textContent="🕘 Historial ("+r.p.length+")";
+  bh.onclick=function(){open[r.id]=open[r.id]==="hist"?"":"hist";render()};a.appendChild(bh)}
+ if(r.m<=0&&r.p.length){var b=document.createElement("span");b.className="badge";b.textContent="✓ Saldado";a.appendChild(b)}
+ d.appendChild(a);
+ if(open[r.id]==="pay"){
+  var p=document.createElement("div");p.className="pay";
+  var pi=document.createElement("input");pi.placeholder="Monto del pago";pi.setAttribute("inputmode","numeric");
+  pi.oninput=function(){money(pi)};
+  var go=function(){var v=num(pi.value);if(!v){pi.focus();return}if(v>r.m)alert("El pago es mayor que la deuda. Se registra solo RD$ "+fmt(r.m));pay(r,Math.min(v,r.m))};
+  pi.onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();go()}};
+  var br=document.createElement("button");br.textContent="Registrar";br.onclick=go;
+  p.appendChild(pi);p.appendChild(br);
+  if(r.m>0){var bt=document.createElement("button");bt.className="g";bt.textContent="Pagó todo (RD$ "+fmt(r.m)+")";bt.onclick=function(){pay(r,r.m)};p.appendChild(bt)}
+  d.appendChild(p);
+ }
+ if(open[r.id]==="hist"&&r.p.length){
+  var h=document.createElement("div");h.className="hist";
+  r.p.map(function(e,i){
+   var rest=r.m;for(var j=i+1;j<r.p.length;j++)rest+=r.p[j].a;
+   return{e:e,i:i,rest:rest};
+  }).reverse().forEach(function(o){
+   var line=document.createElement("div");line.className="h";
+   var dd=document.createElement("div");dd.className="d";
+   dd.innerHTML="<b></b> <small></small>";
+   dd.firstChild.textContent="RD$ "+fmt(o.e.a);
+   dd.lastChild.textContent=fd(o.e.t)+" · quedó RD$ "+fmt(o.rest);
+   var u=document.createElement("button");u.className="u";u.textContent="↩";u.setAttribute("aria-label","Deshacer pago");
+   u.onclick=function(){if(confirm("¿Deshacer este pago de RD$ "+fmt(o.e.a)+"? Se le suma de nuevo a la deuda.")){r.m+=o.e.a;r.p.splice(o.i,1);save();render()}};
+   line.appendChild(dd);line.appendChild(u);h.appendChild(line);
+  });
+  d.appendChild(h);
+ }
+ return d;
+}
 function render(){
  var q=$("q").value.trim().toLowerCase(),L=$("list");L.innerHTML="";
- var rows=data.slice().sort(function(a,b){return a.n.localeCompare(b.n,"es",{sensitivity:"base"})});
- rows=rows.filter(function(r){return !q||r.n.toLowerCase().indexOf(q)>-1});
+ var rows=data.slice().sort(cmp).filter(function(r){return(!q||r.n.toLowerCase().indexOf(q)>-1)&&!(hide&&r.m<=0)});
  if(!rows.length){L.innerHTML='<div class="empty">No hay nadie en la lista</div>'}
- rows.forEach(function(r){
-  var d=document.createElement("div");d.className="row";
-  var n=document.createElement("input");n.className="n";n.value=r.n;
-  n.onchange=function(){r.n=n.value.trim()||r.n;save();render()};
-  var m=document.createElement("input");m.className="m";m.setAttribute("inputmode","numeric");m.value=fmt(r.m);
-  m.onfocus=function(){m.select()};
-  m.oninput=function(){r.m=num(m.value);total();save()};
-  m.onblur=function(){m.value=fmt(r.m)};
-  var x=document.createElement("button");x.className="x";x.textContent="✕";x.setAttribute("aria-label","Quitar");
-  x.onclick=function(){if(confirm("¿Quitar a "+r.n+" de la lista?")){data=data.filter(function(z){return z!==r});save();render()}};
-  d.appendChild(n);d.appendChild(m);d.appendChild(x);L.appendChild(d);
- });
+ rows.forEach(function(r){L.appendChild(item(r))});
+ $("hp").textContent=hide?"Ver saldados":"Ocultar saldados";
  total();
 }
 function add(){
  var n=$("nn").value.trim(),m=num($("nm").value);
  if(!n){$("nn").focus();return}
- data.push({id:nid++,n:n,m:m});save();$("nn").value="";$("nm").value="";$("q").value="";render();$("nn").focus();
+ data.push({id:nid++,n:n,m:m,p:[]});save();$("nn").value="";$("nm").value="";$("q").value="";render();$("nn").focus();
 }
 $("ab").onclick=add;
 $("nn").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("nm").focus()}};
 $("nm").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();add()}};
-$("nm").oninput=function(){var v=num($("nm").value);$("nm").value=v?fmt(v):""};
+$("nm").oninput=function(){money($("nm"))};
 $("q").oninput=render;
-$("cp").onclick=function(){
- var rows=data.slice().sort(function(a,b){return a.n.localeCompare(b.n,"es",{sensitivity:"base"})});
- var t=0,txt="CUENTAS POR COBRAR\n\n";
- rows.forEach(function(r,i){t+=r.m;txt+=(i+1)+". "+r.n+" "+fmt(r.m)+"\n"});
- txt+="\nTOTAL: "+fmt(t);
- var ok=function(){$("cp").textContent="¡Copiado!";setTimeout(function(){$("cp").textContent="Copiar lista"},1500)};
+$("hp").onclick=function(){hide=!hide;render()};
+function copy(txt,btn,label){
+ var ok=function(){btn.textContent="¡Copiado!";setTimeout(function(){btn.textContent=label},1500)};
  try{navigator.clipboard.writeText(txt).then(ok,function(){prompt("Copia esto:",txt)})}catch(e){prompt("Copia esto:",txt)}
+}
+$("cp").onclick=function(){
+ var t=0,i=0,txt="CUENTAS POR COBRAR\n\n";
+ data.slice().sort(cmp).forEach(function(r){if(r.m>0){i++;t+=r.m;txt+=i+". "+r.n+" "+fmt(r.m)+"\n"}});
+ txt+="\nTOTAL: "+fmt(t);copy(txt,$("cp"),"Copiar lista");
 };
-$("th").onclick=function(){
- var r=document.documentElement,dk=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
- r.setAttribute("data-theme",dk?"light":"dark");
+$("cg").onclick=function(){
+ var all=[],k=0;
+ data.forEach(function(r){r.p.forEach(function(e){all.push({n:r.n,e:e});k+=e.a})});
+ all.sort(function(a,b){return a.e.t-b.e.t});
+ var txt="HISTORIAL DE PAGOS\n\n";
+ if(!all.length)txt+="Sin pagos registrados\n";
+ all.forEach(function(o){txt+=fd(o.e.t)+" · "+o.n+" · "+fmt(o.e.a)+"\n"});
+ txt+="\nTOTAL COBRADO: "+fmt(k);copy(txt,$("cg"),"Copiar pagos");
 };
 $("im").onclick=function(){$("ip").style.display="block";$("it").focus()};
 $("ic").onclick=function(){$("ip").style.display="none";$("it").value=""};
@@ -106,9 +176,13 @@ $("ig").onclick=function(){
   l=l.replace(/^\s*\d+[.)]\s+/,"").trim();
   var m=l.match(/^(.*\S)\s+([\d,]+)$/);
   if(!m||/^(total|cuentas)/i.test(l))return;
-  data.push({id:nid++,n:m[1],m:num(m[2])});c++;
+  data.push({id:nid++,n:m[1],m:num(m[2]),p:[]});c++;
  });
  save();render();$("ic").onclick();alert(c+" personas agregadas");
+};
+$("th").onclick=function(){
+ var r=document.documentElement,dk=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
+ r.setAttribute("data-theme",dk?"light":"dark");
 };
 render();
 </script></body></html>
