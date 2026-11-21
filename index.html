@@ -40,11 +40,14 @@ button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 .h b{color:var(--ok)}.h .u{background:transparent;color:var(--mut);padding:4px 8px;font-size:16px}
 .foot{display:flex;gap:8px;padding:8px 14px 24px;flex-wrap:wrap}.foot button{flex:1;min-width:140px}
 .empty{text-align:center;color:var(--mut);padding:24px}
-.tabs{display:flex;gap:6px;margin-top:10px}.tabs button{flex:1;padding:8px 6px;font-size:14px}
+.tabs{display:flex;gap:6px;margin-top:10px}.tabs button{flex:1;padding:6px 2px;font-size:12px;line-height:1.25;min-width:0}
 .add2{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}.add2 input{flex:1 1 140px}.add2 input.s{flex:0 0 76px;text-align:center}
 .acts .sub{width:100%}
 .low .m{color:var(--bad)}
 select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
+.dh{padding:10px 16px 4px;color:var(--mut);font-size:13px;font-weight:600}
+.hrow{display:flex;gap:8px;align-items:center;padding:2px 4px}.he{font-size:14px;color:var(--ok);font-weight:600;white-space:nowrap}.hrow .hw{flex:1}
+.hd{padding:0 6px 2px;font-size:14px}.item.hv .sub{padding:0 6px 4px}
 .u2{color:var(--mut);font-size:14px;padding-right:4px}
 </style></head><body>
 <div class="top"><div class="wrap">
@@ -59,7 +62,10 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <div id="hs-e" style="display:none"><div class="lbl">MAISON SALDANA · Perfumes</div>
 <div class="stats"><div><div class="tot" id="heo">0 oz</div><div class="sub" id="hen"></div></div>
 <div class="cob"><div class="lbl">Agotados (0 oz)</div><div class="v" id="hel" style="color:var(--bad)">0</div></div></div></div>
-<div class="tabs"><button class="on" id="tc">💵 Cobros</button><button class="g" id="tp">🧾 Pedidos</button><button class="g" id="te">🧴 Perfumes</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
+<div id="hs-hi" style="display:none"><div class="lbl">MAISON SALDANA · Historial</div>
+<div class="stats"><div><div class="tot" id="hhn">0</div><div class="sub">registros</div></div>
+<div class="cob"><div class="lbl">Hoy</div><div class="v" id="hhh" style="color:var(--tx)">0</div></div></div></div>
+<div class="tabs"><button class="on" id="tc">💵<br>Cobros</button><button class="g" id="tp">🧾<br>Pedidos</button><button class="g" id="te">🧴<br>Perfumes</button><button class="g" id="thi">🗂<br>Historial</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
 </div></div>
 <div class="wrap">
 <div id="v-c">
@@ -102,6 +108,11 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, un perfume por línea:&#10;1oz Versace Eros&#10;2oz Delina" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
 <div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar inventario</button></div>
 </div>
+<div id="v-hi" style="display:none">
+<div class="bar" style="padding-top:12px"><input id="hq" type="search" placeholder="Buscar nombre, perfume, fecha…"><select id="hf"><option value="todo">Todo</option><option value="pedido">Pedidos</option><option value="cobro">Cobros</option></select></div>
+<div id="hl"></div>
+<div class="foot"><button class="g" id="hcp">Copiar historial</button></div>
+</div>
 </div>
 <script>
 var KEY="cuentas-por-cobrar-v1";
@@ -131,7 +142,7 @@ function total(){
 function money(el){var v=num(el.value);el.value=v?fmt(v):""}
 function pay(r,ap){
  if(ap<=0){alert("Esta persona no tiene saldo pendiente");return}
- r.m-=ap;r.p.push({a:ap,t:Date.now()});open[r.id]="hist";save();render();
+ r.m-=ap;r.p.push({a:ap,t:Date.now()});lg("cobro",r.m<=0?"Saldado":"Pago",r.n,"RD$ "+fmt(ap)+(r.m<=0?" · deuda saldada":" · quedó RD$ "+fmt(r.m)));open[r.id]="hist";save();render();
 }
 function item(r){
  var d=document.createElement("div");d.className="item"+(r.m<=0?" paid":"");
@@ -175,7 +186,7 @@ function item(r){
    dd.firstChild.textContent="RD$ "+fmt(o.e.a);
    dd.lastChild.textContent=fd(o.e.t)+" · quedó RD$ "+fmt(o.rest);
    var u=document.createElement("button");u.className="u";u.textContent="↩";u.setAttribute("aria-label","Deshacer pago");
-   u.onclick=function(){if(confirm("¿Deshacer este pago de RD$ "+fmt(o.e.a)+"? Se le suma de nuevo a la deuda.")){r.m+=o.e.a;r.p.splice(o.i,1);save();render()}};
+   u.onclick=function(){if(confirm("¿Deshacer este pago de RD$ "+fmt(o.e.a)+"? Se le suma de nuevo a la deuda.")){r.m+=o.e.a;r.p.splice(o.i,1);lg("cobro","Pago deshecho",r.n,"RD$ "+fmt(o.e.a)+" · vuelve a la deuda");save();render()}};
    line.appendChild(dd);line.appendChild(u);h.appendChild(line);
   });
   d.appendChild(h);
@@ -255,6 +266,16 @@ var joined=[];
  if(out.length!==P.length){P=out;sv("pedidos-v1",P)}
 })();
 var pmt=0;
+function it2(r){return r.i.filter(function(x){return x.p}).map(function(x){return x.q+" × "+x.p}).join(", ")}
+var H=ld("historial-v1"),hid=1,hraw=null;
+try{hraw=localStorage.getItem("historial-v1")}catch(e){}
+if(hraw===null){
+ data.forEach(function(r){r.p.forEach(function(e){H.push({id:hid++,t:e.t,tp:"cobro",ev:"Pago",who:r.n,det:"RD$ "+fmt(e.a),imp:1})})});
+ P.forEach(function(r){if(r.s===2&&r.td)H.push({id:hid++,t:r.td,tp:"pedido",ev:"Entregado",who:r.c,det:it2(r),imp:1})});
+ sv("historial-v1",H);
+}
+H.forEach(function(e){hid=Math.max(hid,(e.id||0)+1)});
+function lg(tp,ev,who,det){H.push({id:hid++,t:Date.now(),tp:tp,ev:ev,who:who,det:det});sv("historial-v1",H)}
 function note(t){var e=$("pmsg");e.textContent=t;clearTimeout(pmt);pmt=setTimeout(function(){e.textContent=""},5000)}
 var LS=ld("listas-perfumes-v1");
 if(!LS.length){LS=[{id:1,n:"Lista 1",t:Date.now(),items:ld("esencias-v1")}];sv("listas-perfumes-v1",LS)}
@@ -268,15 +289,15 @@ var hideDone=true,ES=["⏳ Pendiente","📦 Listo","✅ Entregado"];
 function oz(v){var n=parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""));return isNaN(n)?0:Math.round(n*100)/100}
 function fo(n){return String(Math.round(n*100)/100)}
 function tab(t){
- ["c","p","e"].forEach(function(k){
+ ["c","p","e","hi"].forEach(function(k){
   $("v-"+k).style.display=k===t?"block":"none";
   $("hs-"+k).style.display=k===t?"block":"none";
   $("t"+k).className=k===t?"on":"g";
  });
- if(t==="c")render();else if(t==="p")rP();else rE();
+ if(t==="c")render();else if(t==="p")rP();else if(t==="e")rE();else rH();
  window.scrollTo(0,0);
 }
-$("tc").onclick=function(){tab("c")};$("tp").onclick=function(){tab("p")};$("te").onclick=function(){tab("e")};
+$("tc").onclick=function(){tab("c")};$("tp").onclick=function(){tab("p")};$("te").onclick=function(){tab("e")};$("thi").onclick=function(){tab("hi")};
 function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 function dl(){var L=$("esl");L.innerHTML="";var seen={};LS.forEach(function(l){l.items.forEach(function(r){var k=r.n.toLowerCase();if(!seen[k]){seen[k]=1;var o=document.createElement("option");o.value=r.n;L.appendChild(o)}})})}
 /* ===== PEDIDOS ===== */
@@ -306,7 +327,7 @@ function oi(r){
  var a=mk("div","acts");
  var ba=mk("button","g","➕ Perfume");ba.onclick=function(){r.i.push({p:"",q:1});sv("pedidos-v1",P);rP()};
  var bs=mk("button","g",ES[r.s]);
- bs.onclick=function(){r.s=(r.s+1)%3;r.td=r.s===2?Date.now():null;sv("pedidos-v1",P);rP()};
+ bs.onclick=function(){r.s=(r.s+1)%3;r.td=r.s===2?Date.now():null;lg("pedido",r.s===1?"Listo":r.s===2?"Entregado":"Reabierto",r.c,it2(r));sv("pedidos-v1",P);rP()};
  a.appendChild(ba);a.appendChild(bs);
  a.appendChild(mk("div","sub","Pedido: "+fd(r.t)+(r.td?" · Entregado: "+fd(r.td):"")));
  d.appendChild(a);return d;
@@ -438,6 +459,40 @@ $("xbl").onclick=function(){
  if(LS.length<2){alert("Tiene que quedar al menos una lista");return}
  if(!confirm("¿Borrar la lista "+c.n+" con sus "+c.items.length+" perfumes? No se puede deshacer."))return;
  LS=LS.filter(function(l){return l!==c});sv("listas-perfumes-v1",LS);pick(LS[LS.length-1]);
+};
+
+/* ===== HISTORIAL ===== */
+var HI={"Listo":"📦","Entregado":"✅","Reabierto":"↩","Pago":"💵","Saldado":"✓","Pago deshecho":"↩"};
+function dayLabel(t){var d=new Date(t),n=new Date(),y=new Date(n);y.setDate(n.getDate()-1);
+ if(d.toDateString()===n.toDateString())return "Hoy";if(d.toDateString()===y.toDateString())return "Ayer";return fds(t)}
+function hsH(){var h=0,k=new Date().toDateString();H.forEach(function(e){if(new Date(e.t).toDateString()===k)h++});$("hhn").textContent=H.length;$("hhh").textContent=h}
+function hrows(){
+ var q=nk($("hq").value),f=$("hf").value;
+ return H.slice().sort(function(a,b){return b.t-a.t}).filter(function(e){
+  if(f!=="todo"&&e.tp!==f)return false;
+  return !q||nk(e.ev+" "+e.who+" "+e.det+" "+fd(e.t)).indexOf(q)>-1});
+}
+function rH(){
+ var L=$("hl");L.innerHTML="";var rows=hrows(),last="";
+ if(!rows.length)L.innerHTML='<div class="empty">No hay registros</div>';
+ rows.forEach(function(e){
+  var dl=dayLabel(e.t);if(dl!==last){last=dl;L.appendChild(mk("div","dh",dl))}
+  var d=mk("div","item hv"),top=mk("div","hrow");
+  top.appendChild(mk("span","he",(HI[e.ev]||"•")+" "+e.ev));top.appendChild(mk("b","hw",e.who));
+  var x=mk("button","x","✕");x.setAttribute("aria-label","Borrar registro");
+  x.onclick=function(){if(confirm("¿Borrar este registro del historial?")){H=H.filter(function(z){return z!==e});sv("historial-v1",H);rH()}};
+  top.appendChild(x);d.appendChild(top);
+  d.appendChild(mk("div","hd",e.det));
+  d.appendChild(mk("div","sub",fd(e.t)+(e.imp?" · registro anterior":"")));
+  L.appendChild(d);
+ });
+ hsH();
+}
+$("hq").oninput=rH;$("hf").onchange=rH;
+$("hcp").onclick=function(){
+ var txt="HISTORIAL\n\n";
+ hrows().forEach(function(e){txt+=fd(e.t)+" · "+e.ev+" · "+e.who+" · "+e.det+"\n"});
+ copy(txt,$("hcp"),"Copiar historial");
 };
 
 render();
