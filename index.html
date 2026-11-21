@@ -78,9 +78,12 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <input id="pc" placeholder="Cliente" autocapitalize="words" enterkeyhint="next">
 <input id="pp" placeholder="Perfume" list="esl" enterkeyhint="next">
 <input id="pq" class="s" placeholder="Cant." inputmode="numeric" enterkeyhint="next">
+<button class="g" id="pi">➕ Otro perfume</button>
+<div id="pd2" style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px"></div>
 <input id="pm" placeholder="Total RD$" inputmode="numeric" enterkeyhint="done">
-<button id="pa">Agregar pedido</button>
+<button id="pa">Guardar pedido</button>
 </div>
+<div class="sub" id="pmsg" style="padding:0 14px 6px"></div>
 <datalist id="esl"></datalist>
 <div class="bar"><input id="ps" type="search" placeholder="Buscar cliente o perfume…"><button class="g" id="ph">Ocultar completados</button></div>
 <div id="pl"></div>
@@ -236,6 +239,24 @@ $("th").onclick=function(){
 function ld(k){try{var s=localStorage.getItem(k),a=s?JSON.parse(s):[];return Array.isArray(a)?a:[]}catch(e){return[]}}
 function sv(k,a){try{localStorage.setItem(k,JSON.stringify(a))}catch(e){}}
 var P=ld("pedidos-v1");
+P.forEach(function(r){if(!Array.isArray(r.i)){r.i=[{p:r.p||"",q:r.q||1}];delete r.p;delete r.q}});
+if(P.length)sv("pedidos-v1",P);
+var D=[];
+function nk(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim()}
+function addIt(arr,p,q){var k=nk(p);for(var i=0;i<arr.length;i++)if(nk(arr[i].p)===k){arr[i].q+=q;return false}arr.push({p:p,q:q});return true}
+function tgt(c){var k=nk(c);if(!k)return null;for(var i=0;i<P.length;i++){var r=P[i];if(nk(r.c)===k&&!r.pg&&r.s<2)return r}return null}
+var joined=[];
+(function(){var seen={},out=[];
+ P.forEach(function(r){
+  var k=nk(r.c),open=!r.pg&&r.s<2&&k,t=open?seen[k]:null;
+  if(!t){out.push(r);if(open)seen[k]=r;return}
+  r.i.forEach(function(x){if(x.p)addIt(t.i,x.p,x.q)});t.m+=r.m;t.s=Math.min(t.s,r.s);t.t=Math.min(t.t,r.t);
+  if(joined.indexOf(t.c)<0)joined.push(t.c);
+ });
+ if(out.length!==P.length){P=out;sv("pedidos-v1",P)}
+})();
+var pmt=0;
+function note(t){var e=$("pmsg");e.textContent=t;clearTimeout(pmt);pmt=setTimeout(function(){e.textContent=""},5000)}
 var LS=ld("listas-perfumes-v1");
 if(!LS.length){LS=[{id:1,n:"Lista 1",t:Date.now(),items:ld("esencias-v1")}];sv("listas-perfumes-v1",LS)}
 var xsel=0;try{xsel=parseInt(localStorage.getItem("listas-sel-v1"),10)||0}catch(e){}
@@ -273,42 +294,64 @@ function oi(r){
  var x=mk("button","x","✕");x.setAttribute("aria-label","Quitar");
  x.onclick=function(){if(confirm("¿Quitar el pedido de "+r.c+"?")){P=P.filter(function(z){return z!==r});sv("pedidos-v1",P);rP()}};
  row.appendChild(c);row.appendChild(m);row.appendChild(x);d.appendChild(row);
- var r2=mk("div","row");
- var p=mk("input","n");p.value=r.p;p.placeholder="Perfume";p.setAttribute("list","esl");
- p.onchange=function(){r.p=p.value.trim();sv("pedidos-v1",P)};
- var q=mk("input","m");q.style.width="56px";q.setAttribute("inputmode","numeric");q.placeholder="Cant.";q.value=r.q;
- q.onfocus=function(){q.select()};
- q.oninput=function(){r.q=num(q.value)||1;sv("pedidos-v1",P)};
- q.onblur=function(){q.value=r.q};
- r2.appendChild(p);r2.appendChild(q);d.appendChild(r2);
+ r.i.forEach(function(it,ix){
+  var r2=mk("div","row");
+  var p=mk("input","n");p.value=it.p;p.placeholder="Perfume";p.setAttribute("list","esl");
+  p.onchange=function(){it.p=p.value.trim();var k=nk(it.p),mg=false;
+   if(k)for(var j=0;j<r.i.length;j++)if(j!==ix&&nk(r.i[j].p)===k){r.i[j].q+=it.q;r.i.splice(ix,1);mg=true;break}
+   sv("pedidos-v1",P);if(mg)rP()};
+  var q=mk("input","m");q.style.width="56px";q.setAttribute("inputmode","numeric");q.placeholder="Cant.";q.value=it.q;
+  q.onfocus=function(){q.select()};
+  q.oninput=function(){it.q=num(q.value)||1;sv("pedidos-v1",P)};
+  q.onblur=function(){q.value=it.q};
+  r2.appendChild(p);r2.appendChild(q);
+  if(r.i.length>1){var rx=mk("button","x","✕");rx.setAttribute("aria-label","Quitar perfume");rx.onclick=function(){r.i.splice(ix,1);sv("pedidos-v1",P);rP()};r2.appendChild(rx)}
+  d.appendChild(r2);
+ });
  var a=mk("div","acts");
+ var ba=mk("button","g","➕ Perfume");ba.onclick=function(){r.i.push({p:"",q:1});sv("pedidos-v1",P);rP()};
  var bs=mk("button","g",ES[r.s]);
  bs.onclick=function(){r.s=(r.s+1)%3;r.td=r.s===2?Date.now():null;sv("pedidos-v1",P);rP()};
  var bg=mk("button","g",r.pg?"✓ Pagado":"💰 Sin pagar");if(r.pg)bg.style.color="var(--ok)";
  bg.onclick=function(){r.pg=!r.pg;r.tp=r.pg?Date.now():null;sv("pedidos-v1",P);rP()};
- a.appendChild(bs);a.appendChild(bg);
+ a.appendChild(ba);a.appendChild(bs);a.appendChild(bg);
  a.appendChild(mk("div","sub","Pedido: "+fd(r.t)+(r.td?" · Entregado: "+fd(r.td):"")+(r.tp?" · Pagado: "+fd(r.tp):"")));
  d.appendChild(a);return d;
 }
 function rP(){
  var q=$("ps").value.trim().toLowerCase(),L=$("pl");L.innerHTML="";dl();
  var rows=P.slice().sort(function(a,b){return b.t-a.t}).filter(function(r){
-  return !(hideDone&&r.s===2&&r.pg)&&(!q||(r.c+" "+r.p).toLowerCase().indexOf(q)>-1)});
+  return !(hideDone&&r.s===2&&r.pg)&&(!q||(r.c+" "+r.i.map(function(x){return x.p}).join(" ")).toLowerCase().indexOf(q)>-1)});
  if(!rows.length)L.innerHTML='<div class="empty">No hay pedidos</div>';
  rows.forEach(function(r){L.appendChild(oi(r))});
  $("ph").textContent=hideDone?"Ver completados":"Ocultar completados";hsP();
 }
-function addP(){
- var c=$("pc").value.trim(),pf=$("pp").value.trim();
- if(!c){$("pc").focus();return}
- if(!pf){$("pp").focus();return}
- P.push({id:pid++,c:c,p:pf,q:num($("pq").value)||1,m:num($("pm").value),s:0,pg:false,t:Date.now()});
- sv("pedidos-v1",P);["pc","pp","pq","pm"].forEach(function(i){$(i).value=""});$("ps").value="";rP();$("pc").focus();
+function rD(){
+ var B=$("pd2");B.innerHTML="";
+ D.forEach(function(it,ix){var c=mk("button","g",it.q+" × "+it.p+"  ✕");c.style.padding="6px 10px";c.style.fontSize="14px";c.onclick=function(){D.splice(ix,1);rD()};B.appendChild(c)});
 }
+function addI(){
+ var pf=$("pp").value.trim();
+ if(!pf){$("pp").focus();return}
+ addIt(D,pf,num($("pq").value)||1);$("pp").value="";$("pq").value="";rD();$("pp").focus();
+}
+function addP(){
+ var c=$("pc").value.trim();
+ if(!c){$("pc").focus();return}
+ if($("pp").value.trim())addI();
+ if(!D.length){$("pp").focus();return}
+ var mt=num($("pm").value),t=tgt(c),n=D.length;
+ if(t){D.forEach(function(x){addIt(t.i,x.p,x.q)});t.m+=mt;if(t.s>0){t.s=0;t.td=null}
+  note("Agregado a la lista de "+t.c+" ("+n+(n>1?" perfumes":" perfume")+")")}
+ else{P.push({id:pid++,c:c,i:D.slice(),m:mt,s:0,pg:false,t:Date.now()});note("Pedido nuevo de "+c)}
+ D=[];sv("pedidos-v1",P);["pc","pp","pq","pm"].forEach(function(i){$(i).value=""});$("ps").value="";rD();rP();$("pc").focus();
+}
+$("pc").oninput=function(){var t=tgt(this.value);$("pmsg").textContent=t?"Ya tiene una lista abierta: lo nuevo se agregará a ella":""};
+$("pi").onclick=addI;
 $("pa").onclick=addP;
 $("pc").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pp").focus()}};
 $("pp").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pq").focus()}};
-$("pq").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();$("pm").focus()}};
+$("pq").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();addI()}};
 $("pm").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();addP()}};
 $("pm").oninput=function(){money($("pm"))};
 $("ps").oninput=rP;
@@ -317,7 +360,7 @@ $("pcp").onclick=function(){
  var txt="PEDIDOS\n\n",n=0,d=0;
  P.slice().sort(function(a,b){return a.t-b.t}).forEach(function(r){
   if(r.s===2&&r.pg)return;n++;if(!r.pg)d+=r.m;
-  txt+=n+". "+r.c+" · "+r.q+" × "+r.p+" · RD$ "+fmt(r.m)+" · "+ES[r.s].replace(/^\S+\s/,"")+" · "+(r.pg?"Pagado":"Sin pagar")+" · "+fd(r.t)+"\n";
+  txt+=n+". "+r.c+" · "+r.i.map(function(x){return x.q+" × "+x.p}).join(", ")+" · RD$ "+fmt(r.m)+" · "+ES[r.s].replace(/^\S+\s/,"")+" · "+(r.pg?"Pagado":"Sin pagar")+" · "+fd(r.t)+"\n";
  });
  txt+="\nSIN PAGAR: RD$ "+fmt(d);copy(txt,$("pcp"),"Copiar pedidos");
 };
@@ -408,4 +451,5 @@ $("xbl").onclick=function(){
 
 render();
 if(fixed.length)alert("Corregí "+fixed.length+" nombre(s) que traían el monto pegado: "+fixed.join(", ")+". Revisa que los montos estén bien.");
+if(joined.length)alert("Uní los pedidos repetidos de: "+joined.join(", ")+". Ahora cada cliente tiene una sola lista.");
 </script></body></html>
