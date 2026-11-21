@@ -4,68 +4,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Maison Saldana · Cuentas por cobrar</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0a08">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Maison Saldana">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-:root{--bg:#f5f5f4;--card:#fff;--tx:#1c1917;--mut:#78716c;--ac:#1f2937;--acx:#fff;--bd:#e7e5e4;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0a09;--card:#1c1917;--tx:#fafaf9;--mut:#a8a29e;--ac:#fafaf9;--acx:#1c1917;--bd:#292524;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0c0a09;--card:#1c1917;--tx:#fafaf9;--mut:#a8a29e;--ac:#fafaf9;--acx:#1c1917;--bd:#292524;--ok:#4ade80;--bad:#f87171;color-scheme:dark}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,"Segoe UI",Arial,sans-serif}
-.top{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:14px 14px 10px;border-bottom:1px solid var(--bd);z-index:5}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
-.lbl{color:var(--mut);font-size:13px}
-.tot{font-size:34px;font-weight:700;letter-spacing:-.5px}
-.sub{color:var(--mut);font-size:13px}
-.stats{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
-.cob{text-align:right}.cob .v{font-size:20px;font-weight:700;color:var(--ok)}
+:root{--bg:#f4f1ea;--card:#fffdf9;--tx:#15120e;--mut:#7a7367;--bd:#e6dfd0;--gold:#a8812c;--ac:#14110d;--acx:#ecd9a3;--ok:#2f7d4f;--bad:#b3372f;--sh:0 1px 2px rgba(20,16,10,.05),0 8px 20px -12px rgba(20,16,10,.22);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0908;--card:#141210;--tx:#f3eee3;--mut:#9a9284;--bd:#2a2620;--gold:#d4b05a;--ac:#d4b05a;--acx:#14110d;--ok:#5fc98a;--bad:#f0746b;--sh:0 8px 20px -12px #000;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0908;--card:#141210;--tx:#f3eee3;--mut:#9a9284;--bd:#2a2620;--gold:#d4b05a;--ac:#d4b05a;--acx:#14110d;--ok:#5fc98a;--bad:#f0746b;--sh:0 8px 20px -12px #000;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,"SF Pro Text","Segoe UI",Arial,sans-serif;padding-bottom:92px;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#0b0a08;z-index:10}
+.top{position:sticky;top:env(safe-area-inset-top,0px);background:linear-gradient(180deg,#0f0d0a,#0b0a08);color:#f3eee3;padding:14px 16px 14px;border-bottom:1px solid rgba(212,176,90,.35);z-index:5}
+.brand{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.brand span{font:600 13px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;letter-spacing:.34em;color:#d4b05a}
+.brand small{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8f877a}
+.lbl{color:#9d9586;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.tot{font:500 38px/1.1 Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:#f6f0e1}
+.sub{color:var(--mut);font-size:13px}.top .sub{color:#9d9586}
+.stats{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:4px}
+.cob{text-align:right}.cob .v{font:500 22px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;color:#d4b05a;font-variant-numeric:tabular-nums}
+.pbar{height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin-top:12px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b8923a,#ecd08a);transition:width .6s ease}
 .wrap{max-width:560px;margin:0 auto}
-.add{display:flex;gap:8px;padding:12px 14px}
-input,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
-.add input:first-child{flex:1}.add input.m{width:96px;text-align:right}
-button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--ac);color:var(--acx);font-weight:600}
-button.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
-.bar{display:flex;gap:8px;padding:0 14px 8px}.bar input{flex:1}
-.item{margin:0 14px 8px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:6px}
+.add{display:flex;gap:8px;padding:14px}
+input,textarea,select{font:inherit;font-size:16px;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:11px;min-width:0;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(168,129,44,.2)}
+.add input:first-child{flex:1}.add input.m{width:100px;text-align:right}
+button{font:inherit;font-size:14px;font-weight:600;letter-spacing:.01em;border:1px solid transparent;border-radius:10px;padding:11px 15px;background:var(--ac);color:var(--acx);transition:transform .1s,opacity .15s}
+button:active{transform:scale(.97);opacity:.9}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.bar{display:flex;gap:8px;padding:0 14px 10px}.bar input{flex:1}
+.item{margin:0 14px 10px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:8px;box-shadow:var(--sh);animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .row{display:flex;gap:8px;align-items:center}
-.row input{border:0;background:transparent;padding:8px}
-.row .n{flex:1}.row .m{width:96px;text-align:right;font-weight:600}
-.paid .n,.paid .m{opacity:.5}
-.x{background:transparent;color:var(--bad);padding:8px 10px;font-size:18px}
-.acts{display:flex;gap:6px;padding:0 4px 4px;align-items:center;flex-wrap:wrap}
-.acts button{padding:6px 10px;font-size:14px}
-.badge{color:var(--ok);font-size:13px;font-weight:600}
+.row input{border:0;background:transparent;padding:9px;box-shadow:none}
+.row input:focus{box-shadow:none;background:rgba(168,129,44,.08);border-radius:8px}
+.row .n{flex:1;font-weight:600}.row .m{width:100px;text-align:right;font:600 18px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;font-variant-numeric:tabular-nums}
+.paid .n,.paid .m{opacity:.45}
+.x{background:transparent!important;color:var(--mut);padding:8px 10px;font-size:17px;border:0}
+.x:active{color:var(--bad)}
+.acts{display:flex;gap:6px;padding:2px 4px 4px;align-items:center;flex-wrap:wrap}
+.acts button{padding:6px 12px;font-size:13px;border-radius:999px}
+.chip{border-radius:999px!important}.chip.s0{background:transparent;color:var(--gold);border-color:var(--gold)}.chip.s1{background:var(--gold);color:#fff;border-color:var(--gold)}.chip.s2{background:var(--ok);color:#fff;border-color:var(--ok)}
+.badge{color:var(--ok);font-size:12px;font-weight:700;letter-spacing:.04em}
 .pay{display:flex;gap:6px;padding:4px;flex-wrap:wrap}.pay input{flex:1;min-width:110px}
-.hist{padding:4px 6px 6px;border-top:1px dashed var(--bd);margin-top:4px}
-.h{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.hist{padding:4px 8px 6px;border-top:1px dashed var(--bd);margin-top:4px}
+.h{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:14px}
 .h:last-child{border-bottom:0}.h .d{flex:1}.h .d small{display:block;color:var(--mut)}
-.h b{color:var(--ok)}.h .u{background:transparent;color:var(--mut);padding:4px 8px;font-size:16px}
-.foot{display:flex;gap:8px;padding:8px 14px 24px;flex-wrap:wrap}.foot button{flex:1;min-width:140px}
-.empty{text-align:center;color:var(--mut);padding:24px}
-.tabs{display:flex;gap:6px;margin-top:10px}.tabs button{flex:1;padding:6px 2px;font-size:12px;line-height:1.25;min-width:0}
-.add2{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}.add2 input{flex:1 1 140px}.add2 input.s{flex:0 0 76px;text-align:center}
+.h b{color:var(--ok);font-family:Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif}.h .u{background:transparent;color:var(--mut);padding:4px 8px;font-size:16px;border:0}
+.foot{display:flex;gap:8px;padding:10px 14px 24px;flex-wrap:wrap}.foot button{flex:1;min-width:140px}
+.empty{text-align:center;color:var(--mut);padding:40px 20px;font:italic 17px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif}
+.add2{display:flex;flex-wrap:wrap;gap:8px;padding:14px}.add2 input{flex:1 1 140px}.add2 input.s{flex:0 0 76px;text-align:center}
 .acts .sub{width:100%}
 .low .m{color:var(--bad)}
-select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
-.dh{padding:10px 16px 4px;color:var(--mut);font-size:13px;font-weight:600}
-.hrow{display:flex;gap:8px;align-items:center;padding:2px 4px}.he{font-size:14px;color:var(--ok);font-weight:600;white-space:nowrap}.hrow .hw{flex:1}
+.dh{padding:12px 18px 4px;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.hrow{display:flex;gap:8px;align-items:center;padding:2px 4px}.he{font-size:12px;color:var(--ok);font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}.hrow .hw{flex:1}
 .hd{padding:0 6px 2px;font-size:14px}.item.hv .sub{padding:0 6px 4px}
 .u2{color:var(--mut);font-size:14px;padding-right:4px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:rgba(11,10,8,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(212,176,90,.3);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:0;border-radius:10px;color:#8f877a;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:6px 0;min-width:0}
+.nav button.on{color:#e6c878}.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 </style></head><body>
 <div class="top"><div class="wrap">
+<div class="brand"><span>MAISON SALDANA</span><small>Panel de gestión</small></div>
 <div id="hs-c">
-<div class="lbl">MAISON SALDANA · Por cobrar</div>
+<div class="lbl">Por cobrar</div>
 <div class="stats"><div><div class="tot" id="tot">RD$ 0</div><div class="sub" id="cnt"></div></div>
 <div class="cob"><div class="lbl">Cobrado</div><div class="v" id="cob">RD$ 0</div></div></div>
+<div class="pbar"><i id="pfill"></i></div><div class="sub" id="ppct" style="margin-top:6px"></div>
 </div>
-<div id="hs-p" style="display:none"><div class="lbl">MAISON SALDANA · Pedidos de perfumes</div>
+<div id="hs-p" style="display:none"><div class="lbl">Pedidos de perfumes</div>
 <div class="stats"><div><div class="tot" id="hpn">0</div><div class="sub">clientes con pedido</div></div>
-<div class="cob"><div class="lbl">Perfumes pedidos</div><div class="v" id="hpd" style="color:var(--tx)">0</div></div></div></div>
-<div id="hs-e" style="display:none"><div class="lbl">MAISON SALDANA · Perfumes</div>
+<div class="cob"><div class="lbl">Perfumes pedidos</div><div class="v" id="hpd">0</div></div></div></div>
+<div id="hs-e" style="display:none"><div class="lbl">Perfumes</div>
 <div class="stats"><div><div class="tot" id="heo">0 oz</div><div class="sub" id="hen"></div></div>
-<div class="cob"><div class="lbl">Agotados (0 oz)</div><div class="v" id="hel" style="color:var(--bad)">0</div></div></div></div>
-<div id="hs-hi" style="display:none"><div class="lbl">MAISON SALDANA · Historial</div>
+<div class="cob"><div class="lbl">Agotados (0 oz)</div><div class="v" id="hel">0</div></div></div></div>
+<div id="hs-hi" style="display:none"><div class="lbl">Historial</div>
 <div class="stats"><div><div class="tot" id="hhn">0</div><div class="sub">registros</div></div>
-<div class="cob"><div class="lbl">Hoy</div><div class="v" id="hhh" style="color:var(--tx)">0</div></div></div></div>
-<div class="tabs"><button class="on" id="tc">💵<br>Cobros</button><button class="g" id="tp">🧾<br>Pedidos</button><button class="g" id="te">🧴<br>Perfumes</button><button class="g" id="thi">🗂<br>Historial</button><button class="g" id="th" style="flex:0 0 auto" aria-label="Modo claro/oscuro">◐</button></div>
+<div class="cob"><div class="lbl">Hoy</div><div class="v" id="hhh">0</div></div></div></div>
 </div></div>
 <div class="wrap">
 <div id="v-c">
@@ -84,7 +102,7 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <input id="pc" placeholder="Cliente" autocapitalize="words" enterkeyhint="next">
 <input id="pp" placeholder="Perfume" list="esl" enterkeyhint="next">
 <input id="pq" class="s" placeholder="Cant." inputmode="numeric" enterkeyhint="next">
-<button class="g" id="pi">➕ Otro perfume</button>
+<button class="g" id="pi">+ Otro perfume</button>
 <div id="pd2" style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px"></div>
 <button id="pa">Guardar pedido</button>
 </div>
@@ -97,7 +115,7 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <div id="v-e" style="display:none">
 <div class="bar" style="padding-top:12px"><select id="xls"></select></div>
 <div class="sub" id="xld" style="padding:0 14px 6px"></div>
-<div class="acts" style="padding:0 14px 6px"><button id="xnl">➕ Nueva lista</button><button class="g" id="xdl">Duplicar</button><button class="g" id="xrn">Renombrar</button><button class="g" id="xbl">Borrar lista</button></div>
+<div class="acts" style="padding:0 14px 6px"><button id="xnl">+ Nueva lista</button><button class="g" id="xdl">Duplicar</button><button class="g" id="xrn">Renombrar</button><button class="g" id="xbl">Borrar lista</button></div>
 <div class="add2">
 <input id="xn" placeholder="Nombre del perfume" enterkeyhint="next">
 <input id="xo" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="done">
@@ -111,9 +129,11 @@ select{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(
 <div id="v-hi" style="display:none">
 <div class="bar" style="padding-top:12px"><input id="hq" type="search" placeholder="Buscar nombre, perfume, fecha…"><select id="hf"><option value="todo">Todo</option><option value="pedido">Pedidos</option><option value="cobro">Cobros</option></select></div>
 <div id="hl"></div>
-<div class="foot"><button class="g" id="hcp">Copiar historial</button></div>
+<div class="foot"><button class="g" id="hcp">Copiar historial</button><button class="g" id="bkc">Copiar respaldo</button><button class="g" id="bkr">Restaurar respaldo</button></div>
+<div id="bkp" style="display:none;padding:0 14px 16px"><textarea id="bkt" rows="6" placeholder="Pega aquí el respaldo que copiaste antes" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="bkg">Restaurar todo</button><button class="g" id="bkx">Cancelar</button></div></div>
 </div>
 </div>
+<nav class="nav"><button class="on" id="tc"><svg viewBox="0 0 24 24"><path d="M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zm0 0 2-3h11"/><circle cx="17" cy="14" r="1.2"/></svg><span>Cobros</span></button><button class="g" id="tp"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Pedidos</span></button><button class="g" id="te"><svg viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="12" rx="2"/><path d="M10 9V6h4v3M9 4h6"/></svg><span>Perfumes</span></button><button class="g" id="thi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historial</span></button><button class="g" id="th" aria-label="Cambiar tema"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Tema</span></button></nav>
 <script>
 var KEY="cuentas-por-cobrar-v1";
 var data=[];
@@ -138,6 +158,7 @@ function total(){
  data.forEach(function(r){t+=r.m;if(r.m>0)c++;r.p.forEach(function(e){k+=e.a})});
  $("tot").textContent="RD$ "+fmt(t);$("cob").textContent="RD$ "+fmt(k);
  $("cnt").textContent=c+" personas con saldo";
+ var al=t+k,pc=al?Math.round(k*100/al):0;$("pfill").style.width=pc+"%";$("ppct").textContent=pc+"% cobrado";
 }
 function money(el){var v=num(el.value);el.value=v?fmt(v):""}
 function pay(r,ap){
@@ -157,9 +178,9 @@ function item(r){
  x.onclick=function(){if(confirm("¿Quitar a "+r.n+" de la lista? Se borra también su historial de pagos.")){data=data.filter(function(z){return z!==r});save();render()}};
  row.appendChild(n);row.appendChild(m);row.appendChild(x);d.appendChild(row);
  var a=document.createElement("div");a.className="acts";
- var bp=document.createElement("button");bp.className="g";bp.textContent="💵 Pago";
+ var bp=document.createElement("button");bp.className="g";bp.textContent="Pago";
  bp.onclick=function(){open[r.id]=open[r.id]==="pay"?"":"pay";render()};a.appendChild(bp);
- if(r.p.length){var bh=document.createElement("button");bh.className="g";bh.textContent="🕘 Historial ("+r.p.length+")";
+ if(r.p.length){var bh=document.createElement("button");bh.className="g";bh.textContent="Historial ("+r.p.length+")";
   bh.onclick=function(){open[r.id]=open[r.id]==="hist"?"":"hist";render()};a.appendChild(bh)}
  if(r.m<=0&&r.p.length){var b=document.createElement("span");b.className="badge";b.textContent="✓ Saldado";a.appendChild(b)}
  d.appendChild(a);
@@ -285,7 +306,7 @@ var E=cl().items;
 function svE(){cl().items=E;sv("listas-perfumes-v1",LS)}
 var pid=P.reduce(function(a,r){return Math.max(a,r.id||0)},0)+1,eid=1;
 LS.forEach(function(l){l.items.forEach(function(r){eid=Math.max(eid,(r.id||0)+1)})});
-var hideDone=true,ES=["⏳ Pendiente","📦 Listo","✅ Entregado"];
+var hideDone=true,ES=["Pendiente","Listo","Entregado"];
 function oz(v){var n=parseFloat(String(v).replace(",",".").replace(/[^\d.]/g,""));return isNaN(n)?0:Math.round(n*100)/100}
 function fo(n){return String(Math.round(n*100)/100)}
 function tab(t){
@@ -325,8 +346,8 @@ function oi(r){
   d.appendChild(r2);
  });
  var a=mk("div","acts");
- var ba=mk("button","g","➕ Perfume");ba.onclick=function(){r.i.push({p:"",q:1});sv("pedidos-v1",P);rP()};
- var bs=mk("button","g",ES[r.s]);
+ var ba=mk("button","g","+ Perfume");ba.onclick=function(){r.i.push({p:"",q:1});sv("pedidos-v1",P);rP()};
+ var bs=mk("button","chip s"+r.s,ES[r.s]);
  bs.onclick=function(){r.s=(r.s+1)%3;r.td=r.s===2?Date.now():null;lg("pedido",r.s===1?"Listo":r.s===2?"Entregado":"Reabierto",r.c,it2(r));sv("pedidos-v1",P);rP()};
  a.appendChild(ba);a.appendChild(bs);
  a.appendChild(mk("div","sub","Pedido: "+fd(r.t)+(r.td?" · Entregado: "+fd(r.td):"")));
@@ -372,7 +393,7 @@ $("pcp").onclick=function(){
  var txt="PEDIDOS\n\n",n=0,k=0;
  P.slice().sort(function(a,b){return a.t-b.t}).forEach(function(r){
   if(r.s===2)return;n++;r.i.forEach(function(x){k+=x.q});
-  txt+=n+". "+r.c+" · "+r.i.filter(function(x){return x.p}).map(function(x){return x.q+" × "+x.p}).join(", ")+" · "+ES[r.s].replace(/^\S+\s/,"")+" · "+fd(r.t)+"\n";
+  txt+=n+". "+r.c+" · "+r.i.filter(function(x){return x.p}).map(function(x){return x.q+" × "+x.p}).join(", ")+" · "+ES[r.s]+" · "+fd(r.t)+"\n";
  });
  txt+="\nTOTAL: "+n+" clientes · "+k+" perfumes";copy(txt,$("pcp"),"Copiar pedidos");
 };
@@ -462,7 +483,7 @@ $("xbl").onclick=function(){
 };
 
 /* ===== HISTORIAL ===== */
-var HI={"Listo":"📦","Entregado":"✅","Reabierto":"↩","Pago":"💵","Saldado":"✓","Pago deshecho":"↩"};
+var HI={"Listo":"◆","Entregado":"✓","Reabierto":"↺","Pago":"$","Saldado":"✓","Pago deshecho":"↺"};
 function dayLabel(t){var d=new Date(t),n=new Date(),y=new Date(n);y.setDate(n.getDate()-1);
  if(d.toDateString()===n.toDateString())return "Hoy";if(d.toDateString()===y.toDateString())return "Ayer";return fds(t)}
 function hsH(){var h=0,k=new Date().toDateString();H.forEach(function(e){if(new Date(e.t).toDateString()===k)h++});$("hhn").textContent=H.length;$("hhh").textContent=h}
@@ -494,6 +515,15 @@ $("hcp").onclick=function(){
  hrows().forEach(function(e){txt+=fd(e.t)+" · "+e.ev+" · "+e.who+" · "+e.det+"\n"});
  copy(txt,$("hcp"),"Copiar historial");
 };
+
+var BK=["cuentas-por-cobrar-v1","pedidos-v1","listas-perfumes-v1","historial-v1"];
+$("bkc").onclick=function(){var o={app:"maison-saldana-cobros",fecha:Date.now()};BK.forEach(function(k){try{o[k]=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}});copy(JSON.stringify(o),$("bkc"),"Copiar respaldo")};
+$("bkr").onclick=function(){$("bkp").style.display="block";$("bkt").focus()};
+$("bkx").onclick=function(){$("bkp").style.display="none";$("bkt").value=""};
+$("bkg").onclick=function(){var o;try{o=JSON.parse($("bkt").value)}catch(e){alert("Ese texto no es un respaldo válido");return}
+ if(!o||o.app!=="maison-saldana-cobros"){alert("Ese texto no es un respaldo de esta app");return}
+ if(!confirm("Esto reemplaza TODOS los datos actuales con el respaldo. ¿Continuar?"))return;
+ BK.forEach(function(k){if(o[k]!=null)try{localStorage.setItem(k,JSON.stringify(o[k]))}catch(e){}});try{location.reload()}catch(e){}};
 
 render();
 if(fixed.length)alert("Corregí "+fixed.length+" nombre(s) que traían el monto pegado: "+fixed.join(", ")+". Revisa que los montos estén bien.");
