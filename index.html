@@ -158,7 +158,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div class="bar"><input id="xs" type="search" placeholder="Buscar perfume…"></div>
 <div id="xl"></div>
 <div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, un perfume por línea:&#10;1oz Versace Eros&#10;2oz Delina" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar inventario</button></div>
+<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar lista</button></div>
 </div>
 <div id="v-hi" style="display:none">
 <div class="bar" style="padding-top:12px"><input id="hq" type="search" placeholder="Buscar nombre, perfume, fecha…"><select id="hf"><option value="todo">Todo</option><option value="pedido">Pedidos</option><option value="cobro">Cobros</option></select></div>
@@ -493,9 +493,9 @@ $("xg").onclick=function(){
  svE();rE();$("xc").onclick();alert(c+" perfumes agregados");
 };
 $("xcp").onclick=function(){
- var txt="INVENTARIO DE PERFUMES · "+cl().n+" ("+fd(cl().t)+")\n\n",t=0;
+ var txt="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",t=0;
  E.slice().sort(cmp).forEach(function(r,i){t+=r.o;txt+=(i+1)+". "+r.n+" — "+fo(r.o)+" oz\n"});
- txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar inventario");
+ txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar lista");
 };
 
 /* ===== LISTAS DE PERFUMES ===== */
