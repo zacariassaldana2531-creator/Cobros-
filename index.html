@@ -166,7 +166,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div class="bar"><input id="xs" type="search" placeholder="Buscar perfume, marca…"><select id="xsr"><option value="n">A–Z</option><option value="m">Menos stock</option><option value="M">Más stock</option><option value="e">Estado</option></select></div>
 <div id="xl"></div>
 <div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, un perfume por línea:&#10;1oz Versace Eros&#10;2oz Delina" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar lista</button><button class="g" id="xmv">Movimientos</button></div>
+<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar lista</button><button class="g" id="xim">Enviar como imagen</button><button class="g" id="xmv">Movimientos</button></div>
 </div>
 <div id="v-hi" style="display:none">
 <div class="bar" style="padding-top:12px"><input id="hq" type="search" placeholder="Buscar nombre, perfume, fecha…"><select id="hf"><option value="todo">Todo</option><option value="pedido">Pedidos</option><option value="cobro">Cobros</option><option value="inventario">Inventario</option></select></div>
@@ -374,6 +374,8 @@ $("xg").onclick=function(){
  });
  svE();rE();$("xc").onclick();alert(c+" perfumes agregados");
 };
+function xAgg(){var g={},o=[];E.forEach(function(r){var k=nk(r.n);if(!k)return;if(!g[k]){g[k]={n:r.n,o:0,nm:{}};o.push(g[k])}var e=g[k];e.o=Math.round((e.o+(r.o||0))*100)/100;e.nm[r.n]=(e.nm[r.n]||0)+1});
+ o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});return o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))})}
 $("xcp").onclick=function(){
  var txt="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",t=0;
  var g={},o=[],rep0=0;E.forEach(function(r){var k=nk(r.n);if(!k)return;if(!g[k]){g[k]={n:r.n,o:0,c:0,nm:{}};o.push(g[k])}var e=g[k];e.o=Math.round((e.o+(r.o||0))*100)/100;e.c++;e.nm[r.n]=(e.nm[r.n]||0)+1;if(e.c>1)rep0++});
@@ -503,7 +505,8 @@ function rcp(c,e){
  var w=mk("div","rcpt");rtxt(c,e).split("\n").forEach(function(l,i){w.appendChild(mk("div",i===0?"rh":i===1?"rn":"",l||"\u00a0"))});
  var f=foot();f.className+=" noprint";var b1=mk("button","g","Copiar"),b2=mk("button","","WhatsApp"),b3=mk("button","g","Imprimir");
  b1.onclick=function(){copy(rtxt(c,e),b1,"Copiar")};b2.onclick=function(){wa2(cof(c).tel,rtxt(c,e))};b3.onclick=function(){window.print()};
- f.appendChild(b1);f.appendChild(b2);f.appendChild(b3);w.appendChild(f);sheet("Comprobante",w)}
+ var b4=mk("button","","Enviar como imagen");b4.onclick=function(){imgS("Comprobante",rcD(c,e),"comprobante-"+String(e.id).slice(-6).toUpperCase(),cof(c).tel)};
+ f.insertBefore(b4,f.firstChild);f.appendChild(b1);f.appendChild(b2);f.appendChild(b3);w.appendChild(f);sheet("Comprobante",w)}
 /* --- abonar --- */
 function payS(c){
  var w=mk("div"),mo=inp("text","Monto",fmt(sal(c)),{inputmode:"numeric"}),mt=sel(CFG.mp,CFG.mp[0]),nt=inp("text","Nota (opcional)");mo.oninput=function(){money(mo)};
@@ -785,6 +788,7 @@ function oS(r){
  f.appendChild(ok);
  (TR[r.s]||[]).forEach(function(ns){var b=mk("button","g",ns===4?"Cancelar pedido":ns===0?"Reactivar":"Pasar a "+ES[ns].toLowerCase());b.onclick=function(){if(setS(r,ns)){shx();rP();toast(ES[ns])}};f.appendChild(b)});
  var bw=mk("button","g","WhatsApp");bw.onclick=function(){wa2((cli(r.c,false)||{}).tel,ptxt(r))};f.appendChild(bw);
+ var bi=mk("button","g","Enviar como imagen");bi.onclick=function(){imgS("Pedido "+r.no,peD(r),"pedido-"+r.no,(cli(r.c,false)||{}).tel)};f.appendChild(bi);
  var t0=tot(r);if(t0.t>0&&!r.cu&&r.s!==4){var bc=mk("button","g","Crear cobro por "+CUR+" "+fmt(t0.t));bc.onclick=function(){var k=cli(r.c,true),a={id:uid(),cid:k.id,c:"Pedido "+r.no,t:Date.now(),m:t0.t,ab:[]};CU.push(a);r.cu=a.id;svC();sv("pedidos-v1",P);lg("cobro","Cuenta creada",k.n,"Pedido "+r.no+" · "+CUR+" "+fmt(t0.t));shx();toast("Cobro creado en Cobros")};f.appendChild(bc)}
  if((r.s===0||r.s===4)&&!r.inv){var bd=mk("button","g","Eliminar");bd.onclick=function(){if(confirm("¿Eliminar el pedido "+r.no+"?")){P=P.filter(function(z){return z!==r});lg("pedido","Pedido eliminado",r.c,r.no);sv("pedidos-v1",P);shx();rP()}};f.appendChild(bd)}
  w.appendChild(f);sheet("Pedido "+r.no,w)}
@@ -977,6 +981,60 @@ function dxS(){var w=mk("div"),ch=mk("div","chips"),pv=mk("div"),ft=foot(),bc=mk
  bc.onclick=function(){copy(dxTxt(dxAgg()),bc,"Copiar lista")};bw.onclick=function(){wa2("",dxTxt(dxAgg()))};
  ft.appendChild(bc);ft.appendChild(bw);w.appendChild(ft);sheet("Lista para el distribuidor",w);dr()}
 $("pdx").onclick=dxS;
+
+/* ===== comprobantes y listas como imagen ===== */
+var IF='Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif',IS='-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif';
+function fdl(t){return new Date(t).toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})}
+function rcD(c,e){var s=sal(c);return{tt:"Comprobante de pago",no:"No. "+String(e.id).slice(-6).toUpperCase(),fe:fd(e.t),
+ rows:[["Cliente",cname(c)],["Concepto",c.c],["Método de pago",e.mt]].concat(e.nt?[["Nota",e.nt]]:[]),
+ tot:["Monto pagado",CUR+" "+fmt(e.a)],after:[["Saldo restante",s>0?CUR+" "+fmt(s):"Cuenta saldada"]],ft:"Gracias por su pago"}}
+function peD(r){var t=tot(r),it=r.i.filter(function(x){return x.p}).map(function(x){return[qz(x.q)+"  "+x.p,x.pr?CUR+" "+fmt(x.q*x.pr):""]}),rw=[["Cliente",r.c],["Estado",ES[r.s]]];
+ if(r.ent)rw.push(["Entrega estimada",fdl(ymd2t(r.ent))]);if(r.me)rw.push(["Entrega",r.me]);
+ var af=[];if(t.d){af.push(["Subtotal",CUR+" "+fmt(t.s)]);af.push(["Descuento","− "+CUR+" "+fmt(t.d)])}if(r.nt)af.push(["Notas",r.nt]);
+ return{tt:"Pedido",no:r.no,fe:fds(r.t),rows:rw,ih:"Detalle del pedido",items:it,before:af,tot:t.s?["Total",CUR+" "+fmt(t.t)]:null,ft:"Gracias por tu compra"}}
+function liD(){var a=xAgg(),s=0;a.forEach(function(e){s+=e.o});return{tt:"Lista de pedido",no:"",fe:fdl(Date.now()),rows:[],ih:"Perfumes",items:a.map(function(e){return[e.n,fo(e.o)+" oz"]}),tot:["Total",fo(Math.round(s*100)/100)+" oz"],ft:""}}
+function ldImg(u){return new Promise(function(ok){if(!u)return ok(null);var i=new Image();i.onload=function(){ok(i)};i.onerror=function(){ok(null)};i.src=u})}
+function docImg(D){return ldImg(CFG.logo).then(function(logo){
+ var W=1080,P=84,cv=document.createElement("canvas");cv.width=W;cv.height=6000;var x=cv.getContext("2d");if(!x)throw new Error("canvas");
+ var gold="#b08a3a",gl="#d9b968",ink="#15120e",mut="#857c6d",ln="#e4dccb",bg="#f8f4ec",dk="#0d0b09";
+ function F(sz,w,f){x.font=(w||"400")+" "+sz+"px "+(f||IS)}
+ function sp(t,X,Y,s,al){var w=0,i;for(i=0;i<t.length;i++)w+=x.measureText(t[i]).width+(i<t.length-1?s:0);var st=al==="center"?X-w/2:al==="right"?X-w:X;x.textAlign="left";for(i=0;i<t.length;i++){x.fillText(t[i],st,Y);st+=x.measureText(t[i]).width+s}}
+ function wrap(t,mw){var ws=String(t).split(/\s+/),L=[],c="";ws.forEach(function(w){var n=c?c+" "+w:w;if(x.measureText(n).width>mw&&c){L.push(c);c=w}else c=n});if(c)L.push(c);return L.length?L:[""]}
+ x.fillStyle=bg;x.fillRect(0,0,W,6000);
+ /* encabezado */
+ var hH=logo?330:300;x.fillStyle=dk;x.fillRect(0,0,W,hH);x.fillStyle=gold;x.fillRect(0,hH-4,W,4);
+ var y;if(logo){var lh=120,lw=Math.min(360,logo.width*lh/logo.height);x.drawImage(logo,(W-lw)/2,48,lw,lh);y=48+lh+62}
+ else{x.strokeStyle=gl;x.lineWidth=2;x.strokeRect(W/2-62,44,124,124);x.strokeRect(W/2-54,52,108,108);F(64,"400",IF);x.fillStyle=gl;x.textBaseline="middle";sp("MS",W/2,108,4,"center");x.textBaseline="alphabetic";y=228}
+ F(34,"500",IF);x.fillStyle=gl;sp(CFG.n.toUpperCase(),W/2,y,12,"center");
+ if(CFG.tg){F(20,"500");x.fillStyle="#9d9586";sp(CFG.tg.toUpperCase(),W/2,y+40,5,"center")}
+ /* título */
+ y=hH+96;F(30,"600");x.fillStyle=ink;sp(D.tt.toUpperCase(),W/2,y,9,"center");
+ y+=44;F(24);x.fillStyle=mut;x.textAlign="center";x.fillText([D.no,D.fe].filter(Boolean).join("   ·   "),W/2,y);
+ y+=34;x.fillStyle=gold;x.fillRect(W/2-36,y,72,2);x.beginPath();x.moveTo(W/2,y-7);x.lineTo(W/2+7,y+1);x.lineTo(W/2,y+9);x.lineTo(W/2-7,y+1);x.closePath();x.fill();y+=44;
+ function row(l,v,big){var top=y;F(20,"600");x.fillStyle=mut;sp(l.toUpperCase(),P,y+30,3,"left");F(big?32:29,"500",IF);x.fillStyle=ink;x.textAlign="right";
+  var L=wrap(v,W-P*2-330);L.forEach(function(s2,i){x.fillText(s2,W-P,y+32+i*40)});y+=32+(L.length-1)*40+30;x.fillStyle=ln;x.fillRect(P,y,W-P*2,1.5);y+=18}
+ (D.rows||[]).forEach(function(r){row(r[0],r[1])});
+ if(D.items&&D.items.length){y+=26;F(20,"700");x.fillStyle=gold;sp((D.ih||"Detalle").toUpperCase(),P,y,5,"left");y+=20;x.fillStyle=gold;x.fillRect(P,y,W-P*2,2);y+=12;
+  D.items.forEach(function(it,i){F(30,"400",IF);var L=wrap(it[0],W-P*2-(it[1]?250:0));x.fillStyle=ink;x.textAlign="left";L.forEach(function(s2,j){x.fillText(s2,P,y+44+j*40)});
+   if(it[1]){F(28,"600");x.textAlign="right";x.fillText(it[1],W-P,y+44)}y+=44+(L.length-1)*40+24;if(i<D.items.length-1){x.fillStyle=ln;x.fillRect(P,y,W-P*2,1.5)}y+=8});if(D.before&&D.before.length){x.fillStyle=gold;x.fillRect(P,y,W-P*2,2);y+=26}}
+ (D.before||[]).forEach(function(r){row(r[0],r[1])});
+ if(D.tot){y+=28;var bh=136;x.fillStyle=dk;x.beginPath();if(x.roundRect)x.roundRect(P,y,W-P*2,bh,20);else x.rect(P,y,W-P*2,bh);x.fill();
+  F(20,"700");x.fillStyle=gl;sp(D.tot[0].toUpperCase(),P+40,y+bh/2+8,5,"left");F(54,"500",IF);x.fillStyle="#f3e4bd";x.textAlign="right";x.fillText(D.tot[1],W-P-40,y+bh/2+19);y+=bh+30}
+ (D.after||[]).forEach(function(r){row(r[0],r[1],true)});
+ y+=40;if(D.ft){F(34,"italic 400",IF);x.fillStyle=ink;x.textAlign="center";x.fillText(D.ft,W/2,y+10);y+=60}
+ if(CFG.tel){F(22,"500");x.fillStyle=mut;sp("WHATSAPP  "+CFG.tel,W/2,y,3,"center");y+=46}
+ y+=30;x.fillStyle=gold;x.fillRect(0,y,W,4);var H=y+4;
+ var out=document.createElement("canvas");out.width=W;out.height=H;out.getContext("2d").drawImage(cv,0,0);return out})}
+function imgS(tl,D,nm,tel){var w=mk("div"),pv=mk("div","sub","Preparando imagen…"),f=foot(),bs=mk("button","","Compartir"),bd=mk("button","g","Guardar imagen"),file=null,url="";bs.disabled=bd.disabled=true;
+ w.appendChild(pv);f.appendChild(bs);f.appendChild(bd);w.appendChild(f);sheet(tl,w);
+ docImg(D).then(function(cv){url=cv.toDataURL("image/png");var im=document.createElement("img");im.src=url;im.alt=tl;im.style.cssText="width:100%;border-radius:12px;border:1px solid var(--bd);display:block";
+  pv.innerHTML="";pv.appendChild(im);pv.appendChild(mk("div","sub","Toca Compartir y elige WhatsApp. También puedes mantener presionada la imagen para guardarla."));bd.disabled=false;
+  try{var bin=atob(url.split(",")[1]),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);file=new File([u8],nm+".png",{type:"image/png"})}catch(e){file=null}
+  bs.disabled=false;if(!(file&&navigator.canShare&&navigator.canShare({files:[file]})))bs.textContent="Abrir WhatsApp"},
+  function(){pv.textContent="Este navegador no pudo crear la imagen."});
+ bs.onclick=function(){if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:tl}).catch(function(){})}else{toast("Guarda la imagen y adjúntala en WhatsApp");wa2(tel||"","")}};
+ bd.onclick=function(){var a=document.createElement("a");a.href=url;a.download=nm+".png";document.body.appendChild(a);a.click();a.remove()}}
+$("xim").onclick=function(){if(!E.length){toast("La lista está vacía",1);return}imgS("Lista de perfumes",liD(),"lista-"+ymd(Date.now()))};
 
 applyCfg();
 
