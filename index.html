@@ -369,8 +369,11 @@ $("xg").onclick=function(){
 };
 $("xcp").onclick=function(){
  var txt="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",t=0;
- E.slice().sort(cmp).forEach(function(r,i){t+=r.o;txt+=(i+1)+". "+r.n+" — "+fo(r.o)+" oz\n"});
- txt+="\nTOTAL: "+fo(t)+" oz";copy(txt,$("xcp"),"Copiar lista");
+ var g={},o=[],rep0=0;E.forEach(function(r){var k=nk(r.n);if(!k)return;if(!g[k]){g[k]={n:r.n,o:0,c:0,nm:{}};o.push(g[k])}var e=g[k];e.o=Math.round((e.o+(r.o||0))*100)/100;e.c++;e.nm[r.n]=(e.nm[r.n]||0)+1;if(e.c>1)rep0++});
+ o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});
+ o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))}).forEach(function(e,i){t+=e.o;txt+=(i+1)+". "+e.n+" — "+fo(e.o)+" oz\n"});
+ txt+="\nTOTAL: "+fo(Math.round(t*100)/100)+" oz";copy(txt,$("xcp"),"Copiar lista");
+ if(rep0)toast(rep0+(rep0>1?" perfumes repetidos se sumaron":" perfume repetido se sumó")+" en la lista");
 };
 
 /* ===== LISTAS DE PERFUMES ===== */
@@ -954,7 +957,7 @@ function dxAgg(){var g={},o=[];P.forEach(function(r){if(!DXS[r.s])return;r.i.for
  o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});
  return o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))})}
 function dxTxt(a){var t="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",s=0;
- a.forEach(function(e,i){s+=e.q;t+=(i+1)+". "+qz(e.q)+" "+e.n+"\n"});return t+"\nTOTAL: "+fo(Math.round(s*100)/100)+" oz"}
+ a.forEach(function(e,i){s+=e.q;t+=(i+1)+". "+e.n+" — "+fo(e.q)+" oz\n"});return t+"\nTOTAL: "+fo(Math.round(s*100)/100)+" oz"}
 function dxS(){var w=mk("div"),ch=mk("div","chips"),pv=mk("div"),ft=foot(),bc=mk("button","","Copiar lista"),bw=mk("button","g","WhatsApp");
  w.appendChild(mk("div","sub","Suma las oz de todos los pedidos por perfume. Si varios clientes pidieron el mismo, sale una sola línea con el total."));
  [["Pendientes",0],["En preparación",3],["Listos",1]].forEach(function(o){var b=mk("button",DXS[o[1]]?"on":"g",o[0]);b.onclick=function(){DXS[o[1]]=!DXS[o[1]];b.className=DXS[o[1]]?"on":"g";dr()};ch.appendChild(b)});
