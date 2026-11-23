@@ -96,7 +96,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 .st{font-size:11.5px;font-weight:700;padding:3px 10px;border:1px solid;border-radius:999px;letter-spacing:.03em}.st.s0{color:var(--gold)}.st.s1{color:#c27a1a}.st.s2{color:var(--ok)}
 .pd6{padding:0 8px 2px}.cn{padding:9px}
 .toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);opacity:0;z-index:70;pointer-events:none;background:#14110d;color:#f3eee3;border:1px solid var(--g1);padding:10px 16px;border-radius:12px;font-size:14px;max-width:88%;text-align:center;transition:.25s}
-.toast.on{opacity:1;transform:translate(-50%,0)}.toast.bad{border-color:var(--bad);color:#ffd9d5}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}.toast.bad{border-color:var(--bad);color:#ffd9d5}
 .up{color:var(--ok)}.dn{color:var(--bad)}.kc{cursor:pointer}
 .rcpt{background:#fffdf9;color:#15120e;border:1px dashed #cfc6b2;border-radius:12px;padding:18px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
 .rcpt .rh{font:600 18px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;letter-spacing:.12em;text-align:center}.rcpt .rn{text-align:center;letter-spacing:.3em;margin-bottom:10px;color:#7a6a3a}
@@ -337,7 +337,14 @@ function ei(r){
  d.appendChild(mk("div","sub pd6",[r.mr,r.ct,r.pv?CUR+" "+fmt(r.pv):"",r.mn?"mín. "+fo(r.mn)+" oz":""].filter(Boolean).join(" · ")||"Toca el nombre para editar"));
  var a=mk("div","acts"),q=mk("b","",fo(r.o)+" oz");q.style.cssText="font-size:20px;padding-right:8px";a.appendChild(q);
  var b1=mk("button","g","− 1"),b2=mk("button","g","+ 1");b1.onclick=function(){adj(r,-1,"Salida")};b2.onclick=function(){adj(r,1,"Entrada")};
- a.appendChild(b1);a.appendChild(b2);d.appendChild(a);return d}
+ a.appendChild(b1);a.appendChild(b2);
+ var bx=mk("button","g","Borrar");bx.style.cssText="margin-left:auto;color:var(--bad);border-color:var(--bad)";bx.setAttribute("aria-label","Borrar "+r.n);bx.onclick=function(){delE(r)};a.appendChild(bx);
+ d.appendChild(a);return d}
+function delE(r){if(!confirm("¿Borrar "+r.n+" ("+fo(r.o)+" oz) de esta lista?"))return;
+ var ix=E.indexOf(r),lid=cl().id;if(ix<0)return;E.splice(ix,1);svE();lg("inventario","Perfume eliminado",r.n,fo(r.o)+" oz · "+cl().n);rE();
+ var e=$("ts");e.innerHTML="";e.appendChild(mk("span","",r.n+" borrado  "));var u=mk("button","g","Deshacer");u.style.cssText="padding:4px 10px;margin-left:6px";
+ u.onclick=function(){if(cl().id===lid&&E.indexOf(r)<0){E.splice(Math.min(ix,E.length),0,r);svE();lg("inventario","Perfume restaurado",r.n,fo(r.o)+" oz");rE()}e.className="toast"};e.appendChild(u);
+ e.className="toast on";clearTimeout(tmo);tmo=setTimeout(function(){e.className="toast"},6000)}
 function rE(){
  var q=$("xs").value.trim().toLowerCase(),L=$("xl");L.innerHTML="";
  var rows=E.slice().sort(cmp).filter(function(r){return(!efs||r.o<=0)&&(!q||(r.n+" "+(r.mr||"")+" "+(r.ct||"")).toLowerCase().indexOf(q)>-1)});var so=$("xsr").value;if(so==="m")rows.sort(function(a,b){return a.o-b.o});else if(so==="M")rows.sort(function(a,b){return b.o-a.o});else if(so==="e")rows.sort(function(a,b){return bst(b)-bst(a)||cmp(a,b)});
@@ -796,7 +803,7 @@ function eS(r){
   var d=Math.round((q2-r.o)*100)/100;r.n=nm;r.mr=mr.value.trim();r.ct=ct.value.trim();r.ds=ds.value.trim();r.pv=num(pv.value);r.mn=oz(mn.value);r.uf=oz(uf.value);
   if(d){r.o=q2;mov("Ajuste",r.n,d,nt.value.trim(),"",cl().id)}svE();shx();rE();toast("Perfume guardado")};
  var bm=mk("button","g","Movimientos");bm.onclick=function(){mvS(r)};
- var bd=mk("button","g","Eliminar");bd.onclick=function(){if(confirm("¿Eliminar "+r.n+"? Sus movimientos quedan guardados.")){E=E.filter(function(z){return z!==r});svE();lg("inventario","Perfume eliminado",r.n,fo(r.o)+" oz");shx();rE()}};
+ var bd=mk("button","g","Borrar");bd.onclick=function(){shx();delE(r)};
  f.appendChild(ok);f.appendChild(bm);f.appendChild(bd);w.appendChild(f);sheet("Perfume",w)}
 
 /* ===== v4: BUSCADOR, EXPORTAR, RESPALDOS, RESÚMENES ===== */
