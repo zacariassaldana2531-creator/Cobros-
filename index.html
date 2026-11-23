@@ -141,7 +141,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div class="add2">
 <input id="pc" placeholder="Cliente" list="cll" autocapitalize="words" enterkeyhint="next">
 <input id="pp" placeholder="Perfume" list="esl" enterkeyhint="next">
-<input id="pq" class="s" placeholder="Cant." inputmode="numeric" enterkeyhint="next">
+<input id="pq" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="next">
 <button class="g" id="pi">+ Otro perfume</button>
 <div id="pd2" style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px"></div>
 <button id="pa">Guardar pedido</button>
@@ -151,7 +151,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <datalist id="esl"></datalist><datalist id="cll"></datalist>
 <div class="bar"><input id="ps" type="search" placeholder="Buscar cliente o perfume…"><button class="g" id="ph">Ocultar entregados</button></div>
 <div id="pl"></div>
-<div class="foot"><button class="g" id="pcp">Copiar pedidos</button></div>
+<div class="foot"><button id="pdx">Lista para el distribuidor</button><button class="g" id="pcp">Copiar pedidos</button></div>
 </div>
 <div id="v-e" style="display:none">
 <div class="bar" style="padding-top:12px"><select id="xls"></select></div>
@@ -183,7 +183,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div class="fld"><label>Color de acento</label><div class="sw" id="asw"></div></div>
 <div class="fld"><label>Métodos de pago (separados por coma)</label><input id="amp"></div>
 <div class="fld"><label>Contacto / WhatsApp del negocio</label><input id="atel" inputmode="tel"></div>
-<div class="fld"><label>Oz que descuenta cada frasco al entregar</label><input id="aoz" inputmode="decimal"></div>
+
 <div class="fld"><label>Logo</label><div style="display:flex;gap:8px"><button class="g" id="alg">Elegir logo</button><button class="g" id="alx">Quitar</button></div></div>
 <div class="fld"><label>Bloqueo con PIN (4 a 6 números)</label><input id="ap" type="password" inputmode="numeric" placeholder="Vacío = no cambiar"></div>
 <div class="foot" style="padding:6px 0 0"><button id="ag">Guardar</button><button class="g" id="th">Claro / oscuro</button><button class="g" id="apx">Quitar PIN</button><button class="g" id="acx">Cerrar</button></div></div></div>
@@ -220,7 +220,7 @@ P.forEach(function(r){if(!Array.isArray(r.i)){r.i=[{p:r.p||"",q:r.q||1}];delete 
 if(P.length)sv("pedidos-v1",P);
 var D=[];
 function nk(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim()}
-function addIt(arr,p,q,pr){var k=nk(p);for(var i=0;i<arr.length;i++)if(nk(arr[i].p)===k){arr[i].q+=q;if(!arr[i].pr&&pr)arr[i].pr=pr;return false}arr.push({p:p,q:q,pr:pr||0});return true}
+function addIt(arr,p,q,pr){var k=nk(p);for(var i=0;i<arr.length;i++)if(nk(arr[i].p)===k){arr[i].q=Math.round((arr[i].q+q)*100)/100;if(!arr[i].pr&&pr)arr[i].pr=pr;return false}arr.push({p:p,q:q,pr:pr||0});return true}
 function tgt(c){var k=nk(c);if(!k)return null;for(var i=0;i<P.length;i++){var r=P[i];if(nk(r.c)===k&&actv(r))return r}return null}
 var joined=[];
 (function(){var seen={},out=[];
@@ -233,7 +233,8 @@ var joined=[];
  if(out.length!==P.length){P=out;sv("pedidos-v1",P)}
 })();
 var pmt=0;
-function it2(r){return r.i.filter(function(x){return x.p}).map(function(x){return x.q+" × "+x.p}).join(", ")}
+function qz(q){return fo(q)+"oz"}
+function it2(r){return r.i.filter(function(x){return x.p}).map(function(x){return qz(x.q)+" "+x.p}).join(", ")}
 var H=ld("historial-v1"),hid=1,hraw=null;
 try{hraw=localStorage.getItem("historial-v1")}catch(e){}
 if(hraw===null){
@@ -272,7 +273,7 @@ function oi(r){
  var lk=r.s===2||r.s===4,d=mk("div","item"+(lk?" paid":"")),row=mk("div","row"),b=mk("b","n cn",r.c);
  b.style.padding="9px";b.onclick=function(){oS(r)};row.appendChild(b);row.appendChild(mk("span","st s"+(r.s===4?0:r.s===2?2:1),ES[r.s]));d.appendChild(row);
  var t=tot(r);d.appendChild(mk("div","sub pd6",r.no+" · "+fds(r.t)+(r.ent?" · entrega "+fds(ymd2t(r.ent)):"")+(t.t?" · "+CUR+" "+fmt(t.t):"")));
- r.i.forEach(function(it){var l=mk("div","tr");l.style.padding="2px 9px";l.appendChild(mk("span","",it.q+" × "+it.p));if(it.pr)l.appendChild(mk("span","sub",CUR+" "+fmt(it.q*it.pr)));d.appendChild(l)});
+ r.i.forEach(function(it){var l=mk("div","tr");l.style.padding="2px 9px";l.appendChild(mk("span","",qz(it.q)+" "+it.p));if(it.pr)l.appendChild(mk("span","sub",CUR+" "+fmt(it.q*it.pr)));d.appendChild(l)});
  var a=mk("div","acts"),nx={0:3,3:1,1:2}[r.s];
  if(nx!==undefined){var bn=mk("button","","Pasar a "+ES[nx].toLowerCase());bn.onclick=function(){if(setS(r,nx)){rP();toast(ES[nx])}};a.appendChild(bn)}
  var bd=mk("button","g","Detalle");bd.onclick=function(){oS(r)};a.appendChild(bd);
@@ -289,12 +290,12 @@ function rP(){
 }
 function rD(){
  var B=$("pd2");B.innerHTML="";
- D.forEach(function(it,ix){var c=mk("button","g",it.q+" × "+it.p+"  ✕");c.style.padding="6px 10px";c.style.fontSize="14px";c.onclick=function(){D.splice(ix,1);rD()};B.appendChild(c)});
+ D.forEach(function(it,ix){var c=mk("button","g",qz(it.q)+" "+it.p+"  ✕");c.style.padding="6px 10px";c.style.fontSize="14px";c.onclick=function(){D.splice(ix,1);rD()};B.appendChild(c)});
 }
 function addI(){
  var pf=$("pp").value.trim();
  if(!pf){$("pp").focus();return}
- addIt(D,pf,num($("pq").value)||1);$("pp").value="";$("pq").value="";rD();$("pp").focus();
+ addIt(D,pf,oz($("pq").value)||1);$("pp").value="";$("pq").value="";rD();$("pp").focus();
 }
 function addP(){
  var c=$("pc").value.trim();
@@ -321,7 +322,7 @@ $("pcp").onclick=function(){
  var txt="PEDIDOS\n\n",n=0,k=0;
  P.slice().sort(function(a,b){return a.t-b.t}).forEach(function(r){
   if(!actv(r))return;n++;r.i.forEach(function(x){k+=x.q});
-  txt+=n+". "+r.c+" · "+r.i.filter(function(x){return x.p}).map(function(x){return x.q+" × "+x.p}).join(", ")+" · "+ES[r.s]+" · "+fd(r.t)+"\n";
+  txt+=n+". "+r.c+" · "+r.i.filter(function(x){return x.p}).map(function(x){return qz(x.q)+" "+x.p}).join(", ")+" · "+ES[r.s]+" · "+fd(r.t)+"\n";
  });
  txt+="\nTOTAL: "+n+" clientes · "+k+" perfumes";copy(txt,$("pcp"),"Copiar pedidos");
 };
@@ -704,11 +705,11 @@ function applyCfg(){var c=ACS[CFG.ac]||ACS.gold,r=document.documentElement.style
 function svCfg(){try{localStorage.setItem("ajustes-v1",JSON.stringify(CFG))}catch(e){}}
 function hp(s){var h=5381;s="ms:"+s;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)}
 function swat(){var W=$("asw");W.innerHTML="";Object.keys(ACS).forEach(function(k){var b=mk("button",k===CFG.ac?"on":"");b.style.background=ACS[k][0];b.setAttribute("aria-label",k);b.onclick=function(){CFG.ac=k;applyCfg();swat()};W.appendChild(b)})}
-$("gear").onclick=function(){$("an").value=CFG.n;$("at").value=CFG.tg;$("acu").value=CFG.cur;$("amp").value=CFG.mp.join(", ");$("atel").value=CFG.tel;$("aoz").value=CFG.ozf;$("ap").value="";swat();$("aj").style.display="flex"};
+$("gear").onclick=function(){$("an").value=CFG.n;$("at").value=CFG.tg;$("acu").value=CFG.cur;$("amp").value=CFG.mp.join(", ");$("atel").value=CFG.tel;$("ap").value="";swat();$("aj").style.display="flex"};
 $("acx").onclick=function(){$("aj").style.display="none"};
 $("apx").onclick=function(){CFG.pin="";svCfg();alert("PIN quitado")};
 $("ag").onclick=function(){
- CFG.n=$("an").value.trim()||CFG.n;CFG.tg=$("at").value.trim();CFG.cur=$("acu").value.trim()||"RD$";CFG.mp=$("amp").value.split(",").map(function(x){return x.trim()}).filter(Boolean);if(!CFG.mp.length)CFG.mp=["Efectivo","Transferencia","Otro"];CFG.tel=$("atel").value.trim();CFG.ozf=oz($("aoz").value)||2;
+ CFG.n=$("an").value.trim()||CFG.n;CFG.tg=$("at").value.trim();CFG.cur=$("acu").value.trim()||"RD$";CFG.mp=$("amp").value.split(",").map(function(x){return x.trim()}).filter(Boolean);if(!CFG.mp.length)CFG.mp=["Efectivo","Transferencia","Otro"];CFG.tel=$("atel").value.trim();
  var v=$("ap").value.replace(/\D/g,"");
  if($("ap").value!==""){if(v.length<4||v.length>6){alert("El PIN debe tener de 4 a 6 números");return}CFG.pin=hp(v)}
  svCfg();try{location.reload()}catch(e){}};
@@ -729,7 +730,7 @@ function fprod(n){var k=nk(n),i,j;for(i=0;i<cl().items.length;i++)if(nk(cl().ite
  for(j=0;j<LS.length;j++)for(i=0;i<LS[j].items.length;i++)if(nk(LS[j].items[i].n)===k)return{l:LS[j],r:LS[j].items[i]};return null}
 function mov(tp,n,a,nt,ref,lid){MV.push({id:uid(),t:Date.now(),tp:tp,n:n,a:a,nt:nt||"",ref:ref||"",lid:lid});sv("movs-v1",MV);lg("inventario",tp,n,(a>0?"+":"")+fo(a)+" oz"+(ref?" · "+ref:"")+(nt?" · "+nt:""))}
 function invPlan(r){var mv=[],w=[];r.i.forEach(function(it){if(!it.p)return;var f=fprod(it.p);if(!f){w.push(it.p+" no está en el inventario");return}
- var need=Math.round(it.q*(f.r.uf||CFG.ozf)*100)/100,ap=Math.min(need,f.r.o);if(ap<need)w.push(it.p+": faltan "+fo(need-ap)+" oz");mv.push({f:f,ap:ap})});return{mv:mv,w:w}}
+ var need=Math.round(it.q*100)/100,ap=Math.min(need,f.r.o);if(ap<need)w.push(it.p+": faltan "+fo(need-ap)+" oz");mv.push({f:f,ap:ap})});return{mv:mv,w:w}}
 function applyInv(r,pl){if(r.inv)return;r.inv=[];pl.mv.forEach(function(m){if(m.ap>0){m.f.r.o=Math.round((m.f.r.o-m.ap)*100)/100;r.inv.push({lid:m.f.l.id,pid:m.f.r.id,a:m.ap});mov("Venta",m.f.r.n,-m.ap,"",r.no,m.f.l.id)}});sv("listas-perfumes-v1",LS)}
 function revInv(r,why){if(!r.inv)return;r.inv.forEach(function(m){var l=LS.filter(function(x){return x.id===m.lid})[0],p=l&&l.items.filter(function(x){return x.id===m.pid})[0];if(p){p.o=Math.round((p.o+m.a)*100)/100;mov("Devolución",p.n,m.a,why,r.no,m.lid)}});r.inv=null;sv("listas-perfumes-v1",LS)}
 function setS(r,ns){
@@ -738,7 +739,7 @@ function setS(r,ns){
  if(ns===4){if(!confirm(r.s===2?"Este pedido ya fue entregado. Al cancelarlo se devuelve el inventario. ¿Continuar?":"¿Cancelar el pedido "+r.no+"?"))return false;revInv(r,"Cancelación "+r.no);r.td=null}
  r.s=ns;lg("pedido",ES[ns],r.c,r.no+" · "+it2(r));sv("pedidos-v1",P);E=cl().items;return true}
 function ptxt(r){var t=tot(r),L=["*PEDIDO "+r.no+"* — "+CFG.n,"Cliente: "+r.c,"Fecha: "+fds(r.t)];if(r.ent)L.push("Entrega estimada: "+fds(ymd2t(r.ent)));if(r.me)L.push("Entrega: "+r.me);L.push("","Productos:");
- r.i.filter(function(x){return x.p}).forEach(function(x){L.push("• "+x.q+" × "+x.p+(x.pr?" — "+CUR+" "+fmt(x.pr)+" c/u = "+CUR+" "+fmt(x.q*x.pr):""))});
+ r.i.filter(function(x){return x.p}).forEach(function(x){L.push("• "+qz(x.q)+" "+x.p+(x.pr?" — "+CUR+" "+fmt(x.pr)+" por oz = "+CUR+" "+fmt(x.q*x.pr):""))});
  if(t.s){L.push("");if(t.d){L.push("Subtotal: "+CUR+" "+fmt(t.s));L.push("Descuento: −"+CUR+" "+fmt(t.d))}L.push("*Total: "+CUR+" "+fmt(t.t)+"*")}
  L.push("","Estado: "+ES[r.s]);if(r.nt)L.push("Notas: "+r.nt);if(CFG.tel)L.push("Contacto: "+CFG.tel);L.push("","Gracias por tu compra.");return L.join("\n")}
 function oS(r){
@@ -748,14 +749,14 @@ function oS(r){
  w.appendChild(fld("Cliente",cn));w.appendChild(fld("Entrega estimada",fe));w.appendChild(fld("Método de entrega",me));
  var L=mk("div"),tt=mk("div","big sm"),lines=r.i.map(function(x){return{p:x.p,q:x.q,pr:x.pr||0}});
  function calc(){var s=0;lines.forEach(function(l){s+=l.q*l.pr});var d=Math.min(num(dc.value),s);tt.textContent=s?"Total "+CUR+" "+fmt(s-d)+(d?" (subtotal "+CUR+" "+fmt(s)+" − desc. "+CUR+" "+fmt(d)+")":""):"Sin precios"}
- function draw(){L.innerHTML="";lines.forEach(function(l,ix){var row=mk("div","row"),p=inp("text","Perfume",l.p,{list:"esl"}),q=inp("text","Cant.",l.q,{inputmode:"numeric"}),pr=inp("text","Precio",l.pr?fmt(l.pr):"",{inputmode:"numeric"});
+ function draw(){L.innerHTML="";lines.forEach(function(l,ix){var row=mk("div","row"),p=inp("text","Perfume",l.p,{list:"esl"}),q=inp("text","Oz",fo(l.q),{inputmode:"decimal"}),pr=inp("text","Precio",l.pr?fmt(l.pr):"",{inputmode:"numeric"});
   p.style.flex="1";q.style.width="54px";pr.style.width="88px";
   p.onchange=function(){l.p=p.value.trim();var f=fprod(l.p);if(f&&f.r.pv&&!l.pr){l.pr=f.r.pv;pr.value=fmt(l.pr)}calc()};
-  q.oninput=function(){l.q=num(q.value)||1;calc()};pr.oninput=function(){money(pr);l.pr=num(pr.value);calc()};
+  q.oninput=function(){l.q=oz(q.value)||1;calc()};pr.oninput=function(){money(pr);l.pr=num(pr.value);calc()};
   [p,q,pr].forEach(function(e){e.disabled=lk});row.appendChild(p);row.appendChild(q);row.appendChild(pr);
   if(!lk&&lines.length>1){var x=mk("button","x","✕");x.onclick=function(){lines.splice(ix,1);draw()};row.appendChild(x)}L.appendChild(row)});calc()}
  dc.oninput=function(){money(dc);calc()};
- w.appendChild(mk("div","dh","Perfumes · cantidad · precio"));w.appendChild(L);
+ w.appendChild(mk("div","dh","Perfumes · oz · precio por oz"));w.appendChild(L);
  if(!lk){var ad=mk("button","g","+ Perfume");ad.onclick=function(){lines.push({p:"",q:1,pr:0});draw()};w.appendChild(ad)}
  w.appendChild(fld("Descuento",dc));w.appendChild(tt);w.appendChild(fld("Notas",nt));draw();
  var f=foot(),ok=mk("button","","Guardar");
@@ -784,7 +785,7 @@ $("xmv").onclick=function(){mvS(null)};
 function eS(r){
  var w=mk("div"),n=inp("text","",r.n),mr=inp("text","",r.mr||""),ct=inp("text","Hombre, Mujer, Unisex…",r.ct||""),ds=inp("text","",r.ds||""),pv=inp("text","",r.pv?fmt(r.pv):"",{inputmode:"numeric"}),mn=inp("text","0 = sin alerta",r.mn?fo(r.mn):"",{inputmode:"decimal"}),uf=inp("text","Por defecto "+CFG.ozf,r.uf?fo(r.uf):"",{inputmode:"decimal"}),qy=inp("text","",fo(r.o),{inputmode:"decimal"}),nt=inp("text","Si cambias la cantidad");
  pv.oninput=function(){money(pv)};
- [["Nombre",n],["Marca",mr],["Categoría",ct],["Descripción",ds],["Precio de venta por frasco",pv],["Stock mínimo (oz)",mn],["Oz que descuenta un frasco",uf],["Cantidad disponible (oz)",qy],["Motivo del ajuste",nt]].forEach(function(o){w.appendChild(fld(o[0],o[1]))});
+ [["Nombre",n],["Marca",mr],["Categoría",ct],["Descripción",ds],["Precio de venta por oz",pv],["Stock mínimo (oz)",mn],["Cantidad disponible (oz)",qy],["Motivo del ajuste",nt]].forEach(function(o){w.appendChild(fld(o[0],o[1]))});
  var im0=r.im||"",ib=mk("button","g",im0?"Cambiar imagen":"Elegir imagen"),ix=mk("button","g","Quitar imagen");ib.onclick=function(){imgPick(160,"image/jpeg",function(u){im0=u;toast("Imagen lista: toca Guardar")})};ix.onclick=function(){im0="";toast("Imagen quitada: toca Guardar")};var ir=mk("div","foot");ir.style.padding="4px 0";ir.appendChild(ib);ir.appendChild(ix);w.appendChild(ir);
  var f=foot(),ok=mk("button","","Guardar");
  ok.onclick=function(){var nm=n.value.trim(),q2=oz(qy.value);r.im=im0;if(!nm){toast("Escribe el nombre",1);return}
@@ -945,6 +946,27 @@ document.addEventListener("visibilitychange",function(){if(!SS)return;if(documen
 window.addEventListener("online",function(){if(SS){SFAIL=0;check()}});
 setInterval(function(){if(SS&&!document.hidden&&!SBUSY)check()},90000);
 if(SS){stat("pend");setTimeout(check,400)}else stat("none");
+
+/* ===== lista consolidada para el distribuidor ===== */
+var DXS={0:true,3:true,1:false};
+function dxAgg(){var g={},o=[];P.forEach(function(r){if(!DXS[r.s])return;r.i.forEach(function(x){if(!x.p||!(x.q>0))return;var k=nk(x.p);
+ if(!g[k]){g[k]={n:x.p,q:0,cl:[],nm:{}};o.push(g[k])}var e=g[k];e.q=Math.round((e.q+x.q)*100)/100;e.nm[x.p]=(e.nm[x.p]||0)+1;e.cl.push(r.c+" ("+qz(x.q)+")")})});
+ o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});
+ return o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))})}
+function dxTxt(a){var t="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",s=0;
+ a.forEach(function(e,i){s+=e.q;t+=(i+1)+". "+qz(e.q)+" "+e.n+"\n"});return t+"\nTOTAL: "+fo(Math.round(s*100)/100)+" oz"}
+function dxS(){var w=mk("div"),ch=mk("div","chips"),pv=mk("div"),ft=foot(),bc=mk("button","","Copiar lista"),bw=mk("button","g","WhatsApp");
+ w.appendChild(mk("div","sub","Suma las oz de todos los pedidos por perfume. Si varios clientes pidieron el mismo, sale una sola línea con el total."));
+ [["Pendientes",0],["En preparación",3],["Listos",1]].forEach(function(o){var b=mk("button",DXS[o[1]]?"on":"g",o[0]);b.onclick=function(){DXS[o[1]]=!DXS[o[1]];b.className=DXS[o[1]]?"on":"g";dr()};ch.appendChild(b)});
+ w.appendChild(ch);w.appendChild(pv);
+ function dr(){pv.innerHTML="";var a=dxAgg(),s=0;
+  if(!a.length){pv.appendChild(mk("div","sub","No hay perfumes en los pedidos seleccionados."));bc.disabled=bw.disabled=true;return}bc.disabled=bw.disabled=false;
+  a.forEach(function(e){s+=e.q;var r=mk("div","tr");r.appendChild(mk("b","",qz(e.q)+" "+e.n));r.appendChild(mk("small","sub",e.cl.length>1?e.cl.length+" clientes":"1 cliente"));pv.appendChild(r);
+   var d=mk("div","sub",e.cl.join(" · "));d.style.padding="0 0 8px";pv.appendChild(d)});
+  pv.appendChild(kv("Total",fo(Math.round(s*100)/100)+" oz · "+a.length+" perfumes"))}
+ bc.onclick=function(){copy(dxTxt(dxAgg()),bc,"Copiar lista")};bw.onclick=function(){wa2("",dxTxt(dxAgg()))};
+ ft.appendChild(bc);ft.appendChild(bw);w.appendChild(ft);sheet("Lista para el distribuidor",w);dr()}
+$("pdx").onclick=dxS;
 
 applyCfg();
 
