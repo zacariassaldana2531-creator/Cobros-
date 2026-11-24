@@ -128,6 +128,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div id="v-c" style="display:none">
 <div class="seg"><button class="on" id="sg1">Cuentas</button><button class="g" id="sg2">Clientes</button></div>
 <div id="cc1">
+<div class="bar" style="padding-top:12px"><button id="cnew2" style="flex:1">+ Nuevo deudor / nueva cuenta</button></div>
 <div class="chips" id="cf"></div>
 <div class="bar"><input id="cq" type="search" placeholder="Buscar cliente o concepto…"></div>
 <div class="bar"><select id="cper"><option value="all">Todas las fechas</option><option value="today">Hoy</option><option value="7">Últimos 7 días</option><option value="mes">Este mes</option></select><select id="cord"><option value="s">Mayor saldo</option><option value="f">Más recientes</option><option value="n">Nombre A–Z</option></select></div>
@@ -630,7 +631,7 @@ function kS(k){
 /* --- acciones y exportar --- */
 $("sg1").onclick=function(){ctab=1;rC()};$("sg2").onclick=function(){ctab=2;rC()};
 $("cq").oninput=rC1;$("kq").oninput=rC2;$("cper").onchange=function(){cper=this.value;rC1()};$("cord").onchange=rC1;
-$("cnew").onclick=function(){newS("")};$("knew").onclick=function(){kS(null)};
+$("cnew").onclick=function(){newS("")};$("cnew2").onclick=function(){newS("")};$("knew").onclick=function(){kS(null)};
 $("ccp").onclick=function(){var t="CUENTAS POR COBRAR\n"+CFG.n+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",i=0,s=0;
  CU.filter(function(c){return sal(c)>0}).sort(function(a,b){return nk(cname(a)).localeCompare(nk(cname(b)))}).forEach(function(c){i++;s+=sal(c);t+=i+". "+cname(c)+" — "+c.c+" — "+CUR+" "+fmt(sal(c))+"\n"});
  copy(t+"\nTOTAL: "+CUR+" "+fmt(s),$("ccp"),"Copiar cuentas")};
