@@ -994,10 +994,10 @@ function peD(r){var t=tot(r),it=r.i.filter(function(x){return x.p}).map(function
  if(r.ent)rw.push(["Entrega estimada",fdl(ymd2t(r.ent))]);if(r.me)rw.push(["Entrega",r.me]);
  var af=[];if(t.d){af.push(["Subtotal",CUR+" "+fmt(t.s)]);af.push(["Descuento","− "+CUR+" "+fmt(t.d)])}if(r.nt)af.push(["Notas",r.nt]);
  return{tt:"Pedido",no:r.no,fe:fds(r.t),rows:rw,ih:"Detalle del pedido",items:it,before:af,tot:t.s?["Total",CUR+" "+fmt(t.t)]:null,ft:"Gracias por tu compra"}}
-function liD(){var a=xAgg(),s=0;a.forEach(function(e){s+=e.o});return{tt:"Lista de pedido",no:"",fe:fdl(Date.now()),rows:[],ih:"Perfumes",items:a.map(function(e){return[e.n,fo(e.o)+" oz"]}),tot:["Total",fo(Math.round(s*100)/100)+" oz"],ft:""}}
+function liD(){var a=xAgg(),s=0;a.forEach(function(e){s+=e.o});return{tt:"Lista de pedido",no:"",fe:fdl(Date.now()),rows:[],ih:"Perfumes · "+a.length,cg:1,items:a.map(function(e){return[e.n,fo(e.o)+" oz"]}),tot:["Total",fo(Math.round(s*100)/100)+" oz"],ft:""}}
 function ldImg(u){return new Promise(function(ok){if(!u)return ok(null);var i=new Image();i.onload=function(){ok(i)};i.onerror=function(){ok(null)};i.src=u})}
 function docImg(D){return ldImg(CFG.logo).then(function(logo){
- var W=1080,P=84,cv=document.createElement("canvas");cv.width=W;cv.height=6000;var x=cv.getContext("2d");if(!x)throw new Error("canvas");
+ var NI=D.items?D.items.length:0,CO=D.cg?(NI>30?3:NI>8?2:1):1,W=CO===3?1500:1080,P=84;function paint(x){
  var gold="#b08a3a",gl="#d9b968",ink="#15120e",mut="#857c6d",ln="#e4dccb",bg="#f8f4ec",dk="#0d0b09";
  function F(sz,w,f){x.font=(w||"400")+" "+sz+"px "+(f||IS)}
  function sp(t,X,Y,s,al){var w=0,i;for(i=0;i<t.length;i++)w+=x.measureText(t[i]).width+(i<t.length-1?s:0);var st=al==="center"?X-w/2:al==="right"?X-w:X;x.textAlign="left";for(i=0;i<t.length;i++){x.fillText(t[i],st,Y);st+=x.measureText(t[i]).width+s}}
@@ -1017,6 +1017,14 @@ function docImg(D){return ldImg(CFG.logo).then(function(logo){
   var L=wrap(v,W-P*2-330);L.forEach(function(s2,i){x.fillText(s2,W-P,y+32+i*40)});y+=32+(L.length-1)*40+30;x.fillStyle=ln;x.fillRect(P,y,W-P*2,1.5);y+=18}
  (D.rows||[]).forEach(function(r){row(r[0],r[1])});
  if(D.items&&D.items.length){y+=26;F(20,"700");x.fillStyle=gold;sp((D.ih||"Detalle").toUpperCase(),P,y,5,"left");y+=20;x.fillStyle=gold;x.fillRect(P,y,W-P*2,2);y+=12;
+  if(CO>1){var gp=56,cw=(W-P*2-gp*(CO-1))/CO,nr=Math.ceil(NI/CO),cx=function(c){return P+c*(cw+gp)},r,c,k,L;
+   for(c=1;c<CO;c++){x.fillStyle=ln;x.fillRect(cx(c)-gp/2,y+6,1.5,0)}
+   var y0=y;
+   for(r=0;r<nr;r++){var ml=1,cells=[];for(c=0;c<CO;c++){k=c*nr+r;if(k<NI){F(29,"400",IF);L=wrap(D.items[k][0],cw-118);cells.push([c,L,D.items[k][1]]);if(L.length>ml)ml=L.length}}
+    cells.forEach(function(q){F(29,"400",IF);x.fillStyle=ink;x.textAlign="left";q[1].forEach(function(s2,j){x.fillText(s2,cx(q[0]),y+42+j*36)});if(q[2]){F(27,"600");x.textAlign="right";x.fillText(q[2],cx(q[0])+cw,y+42)}});
+    y+=42+(ml-1)*36+22;if(r<nr-1)cells.forEach(function(q){x.fillStyle=ln;x.fillRect(cx(q[0]),y,cw,1.5)});y+=6}
+   for(c=1;c<CO;c++){x.fillStyle=ln;x.fillRect(cx(c)-gp/2,y0+14,1.5,y-y0-20)}
+  }else
   D.items.forEach(function(it,i){F(30,"400",IF);var L=wrap(it[0],W-P*2-(it[1]?250:0));x.fillStyle=ink;x.textAlign="left";L.forEach(function(s2,j){x.fillText(s2,P,y+44+j*40)});
    if(it[1]){F(28,"600");x.textAlign="right";x.fillText(it[1],W-P,y+44)}y+=44+(L.length-1)*40+24;if(i<D.items.length-1){x.fillStyle=ln;x.fillRect(P,y,W-P*2,1.5)}y+=8});if(D.before&&D.before.length){x.fillStyle=gold;x.fillRect(P,y,W-P*2,2);y+=26}}
  (D.before||[]).forEach(function(r){row(r[0],r[1])});
@@ -1025,16 +1033,31 @@ function docImg(D){return ldImg(CFG.logo).then(function(logo){
  (D.after||[]).forEach(function(r){row(r[0],r[1],true)});
  y+=40;if(D.ft){F(34,"italic 400",IF);x.fillStyle=ink;x.textAlign="center";x.fillText(D.ft,W/2,y+10);y+=60}
  if(CFG.tel){F(22,"500");x.fillStyle=mut;sp("WHATSAPP  "+CFG.tel,W/2,y,3,"center");y+=46}
- y+=30;x.fillStyle=gold;x.fillRect(0,y,W,4);var H=y+4;
- var out=document.createElement("canvas");out.width=W;out.height=H;out.getContext("2d").drawImage(cv,0,0);return out})}
-function imgS(tl,D,nm,tel){var w=mk("div"),pv=mk("div","sub","Preparando imagen…"),f=foot(),bs=mk("button","","Compartir"),bd=mk("button","g","Guardar imagen"),file=null,url="";bs.disabled=bd.disabled=true;
- w.appendChild(pv);f.appendChild(bs);f.appendChild(bd);w.appendChild(f);sheet(tl,w);
+ y+=30;x.fillStyle=gold;x.fillRect(0,y,W,4);return y+4}
+ var t=document.createElement("canvas");t.width=W;t.height=8;var tc=t.getContext("2d");if(!tc)throw new Error("canvas");
+ var H=Math.ceil(paint(tc)),S=Math.min(2.5,Math.sqrt(15e6/(W*H)));S=Math.max(1,Math.floor(S*100)/100);
+ var out=document.createElement("canvas");out.width=Math.round(W*S);out.height=Math.round(H*S);var o=out.getContext("2d");o.scale(S,S);o.imageSmoothingQuality="high";paint(o);out._H=H;return out})}
+function b64u8(u){var b=atob(u.split(",")[1]),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+function mkPdf(cv){var jp=b64u8(cv.toDataURL("image/jpeg",0.95)),pw=540,ph=Math.round(540*cv.height/cv.width*100)/100,parts=[],len=0,off=[],enc=function(t){var a=new Uint8Array(t.length);for(var i=0;i<t.length;i++)a[i]=t.charCodeAt(i)&255;return a},
+ add=function(x){if(typeof x==="string")x=enc(x);parts.push(x);len+=x.length},obj=function(n,body){off[n]=len;add(n+" 0 obj\n");body();add("\nendobj\n")},cs="q "+pw+" 0 0 "+ph+" 0 0 cm /Im0 Do Q";
+ add("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n");
+ obj(1,function(){add("<< /Type /Catalog /Pages 2 0 R >>")});obj(2,function(){add("<< /Type /Pages /Kids [3 0 R] /Count 1 >>")});
+ obj(3,function(){add("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+pw+" "+ph+"] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>")});
+ obj(4,function(){add("<< /Type /XObject /Subtype /Image /Width "+cv.width+" /Height "+cv.height+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+jp.length+" >>\nstream\n");add(jp);add("\nendstream")});
+ obj(5,function(){add("<< /Length "+cs.length+" >>\nstream\n"+cs+"\nendstream")});
+ var xr=len,t="xref\n0 6\n0000000000 65535 f \n";for(var i=1;i<=5;i++)t+=("000000000"+off[i]).slice(-10)+" 00000 n \n";
+ add(t+"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF");return new Blob(parts,{type:"application/pdf"})}
+function imgS(tl,D,nm,tel){var w=mk("div"),pv=mk("div","sub","Preparando imagen…"),f=foot(),bs=mk("button","","Compartir imagen"),bp=mk("button","g","Compartir PDF (máxima calidad)"),bd=mk("button","g","Guardar imagen"),file=null,pdf=null,url="";bs.disabled=bp.disabled=bd.disabled=true;
+ w.appendChild(pv);f.appendChild(bs);f.appendChild(bp);f.appendChild(bd);w.appendChild(f);sheet(tl,w);
+ var can=function(x){return !!(x&&navigator.canShare&&navigator.canShare({files:[x]}))};
  docImg(D).then(function(cv){url=cv.toDataURL("image/png");var im=document.createElement("img");im.src=url;im.alt=tl;im.style.cssText="width:100%;border-radius:12px;border:1px solid var(--bd);display:block";
-  pv.innerHTML="";pv.appendChild(im);pv.appendChild(mk("div","sub","Toca Compartir y elige WhatsApp. También puedes mantener presionada la imagen para guardarla."));bd.disabled=false;
-  try{var bin=atob(url.split(",")[1]),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);file=new File([u8],nm+".png",{type:"image/png"})}catch(e){file=null}
-  bs.disabled=false;if(!(file&&navigator.canShare&&navigator.canShare({files:[file]})))bs.textContent="Abrir WhatsApp"},
+  pv.innerHTML="";pv.appendChild(im);pv.appendChild(mk("div","sub","Calidad "+cv.width+"×"+cv.height+" px. En WhatsApp toca HD antes de enviar la imagen, o envía el PDF: llega sin perder calidad."));bd.disabled=false;
+  try{file=new File([b64u8(url)],nm+".png",{type:"image/png"})}catch(e){file=null}
+  try{pdf=new File([mkPdf(cv)],nm+".pdf",{type:"application/pdf"})}catch(e){pdf=null}
+  bs.disabled=false;bp.disabled=!pdf;if(!can(file))bs.textContent="Abrir WhatsApp"},
   function(){pv.textContent="Este navegador no pudo crear la imagen."});
- bs.onclick=function(){if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:tl}).catch(function(){})}else{toast("Guarda la imagen y adjúntala en WhatsApp");wa2(tel||"","")}};
+ bs.onclick=function(){if(can(file)){navigator.share({files:[file],title:tl}).catch(function(){})}else{toast("Guarda la imagen y adjúntala en WhatsApp");wa2(tel||"","")}};
+ bp.onclick=function(){if(can(pdf)){navigator.share({files:[pdf],title:tl}).catch(function(){})}else{var u=URL.createObjectURL(pdf);window.open(u,"_blank")}};
  bd.onclick=function(){var a=document.createElement("a");a.href=url;a.download=nm+".png";document.body.appendChild(a);a.click();a.remove()}}
 $("xim").onclick=function(){if(!E.length){toast("La lista está vacía",1);return}imgS("Lista de perfumes",liD(),"lista-"+ymd(Date.now()))};
 
