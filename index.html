@@ -101,6 +101,8 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 .rcpt{background:#fffdf9;color:#15120e;border:1px dashed #cfc6b2;border-radius:12px;padding:18px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
 .rcpt .rh{font:600 18px Didot,"Bodoni 72","Playfair Display",Georgia,"Times New Roman",serif;letter-spacing:.12em;text-align:center}.rcpt .rn{text-align:center;letter-spacing:.3em;margin-bottom:10px;color:#7a6a3a}
 @media print{body::before{display:none}body>*:not(#shw){display:none!important}#shw{position:static!important;display:block!important;background:none!important}.pn{box-shadow:none;max-height:none;overflow:visible;background:#fff!important}.noprint,#shh,#shx{display:none!important}}
+.acp{position:fixed;z-index:70;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 14px 34px -12px rgba(0,0,0,.45);max-height:264px;overflow:auto;display:none;-webkit-overflow-scrolling:touch}
+.acp div{padding:10px 13px;border-bottom:1px solid var(--bd);cursor:pointer}.acp div:last-child{border-bottom:0}.acp div:active{background:rgba(168,129,44,.12)}.acp b{display:block;font-weight:600;font-size:15px}.acp small{color:var(--mut);font-size:12px}
 </style></head><body>
 <div class="top"><div class="wrap">
 <div class="brand"><img id="bl" alt="" style="display:none;height:24px;margin-right:8px"><span id="bn">MAISON SALDANA</span><small id="bt">Panel de gestión</small><button class="gear" id="syb" aria-label="Nube" style="font-size:13px;font-weight:700;letter-spacing:.04em"><span id="syd" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6b6457;margin-right:5px;vertical-align:1px"></span><span id="syt">Nube</span></button><button class="gear" id="gsr" aria-label="Buscar"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button><button class="gear" id="gear" aria-label="Ajustes">⚙︎</button></div>
@@ -140,7 +142,7 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div id="v-p" style="display:none">
 <div class="add2">
 <input id="pc" placeholder="Cliente" list="cll" autocapitalize="words" enterkeyhint="next">
-<input id="pp" placeholder="Perfume" list="esl" enterkeyhint="next">
+<input id="pp" placeholder="Perfume" autocomplete="off" autocorrect="off" enterkeyhint="next">
 <input id="pq" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="next">
 <button class="g" id="pi">+ Otro perfume</button>
 <div id="pd2" style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px"></div>
@@ -159,14 +161,14 @@ button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
 <div class="sub" id="xfl" style="padding:0 14px 6px;display:none"></div>
 <div class="acts" style="padding:0 14px 6px"><button id="xnl">+ Nueva lista</button><button class="g" id="xdl">Duplicar</button><button class="g" id="xrn">Renombrar</button><button class="g" id="xbl">Borrar lista</button></div>
 <div class="add2">
-<input id="xn" placeholder="Nombre del perfume" enterkeyhint="next">
+<input id="xn" placeholder="Nombre del perfume" autocomplete="off" autocorrect="off" enterkeyhint="next">
 <input id="xo" class="s" placeholder="Oz" inputmode="decimal" enterkeyhint="done">
 <button id="xa">Agregar</button>
 </div>
 <div class="bar"><input id="xs" type="search" placeholder="Buscar perfume, marca…"><select id="xsr"><option value="n">A–Z</option><option value="m">Menos stock</option><option value="M">Más stock</option><option value="e">Estado</option></select></div>
 <div id="xl"></div>
 <div id="xp" style="display:none;padding:0 14px 8px"><textarea id="xt" rows="8" placeholder="Pega aquí, un perfume por línea:&#10;1oz Versace Eros&#10;2oz Delina" style="width:100%"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button id="xg">Agregar al inventario</button><button class="g" id="xc">Cancelar</button></div></div>
-<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar lista</button><button class="g" id="xim">Enviar como imagen</button><button class="g" id="xmv">Movimientos</button></div>
+<div class="foot"><button class="g" id="xi">Importar perfumes</button><button class="g" id="xcp">Copiar lista</button><button class="g" id="xim">Enviar como imagen</button><button class="g" id="xmv">Movimientos</button><button class="g" id="xrv">Revisar nombres</button></div>
 </div>
 <div id="v-hi" style="display:none">
 <div class="bar" style="padding-top:12px"><input id="hq" type="search" placeholder="Buscar nombre, perfume, fecha…"><select id="hf"><option value="todo">Todo</option><option value="pedido">Pedidos</option><option value="cobro">Cobros</option><option value="inventario">Inventario</option></select></div>
@@ -295,6 +297,7 @@ function rD(){
 function addI(){
  var pf=$("pp").value.trim();
  if(!pf){$("pp").focus();return}
+ pf=askFix(pf);
  addIt(D,pf,oz($("pq").value)||1);$("pp").value="";$("pq").value="";rD();$("pp").focus();
 }
 function addP(){
@@ -355,6 +358,7 @@ function rE(){
 function addE(){
  var n=$("xn").value.trim();
  if(!n){$("xn").focus();return}
+ n=askFix(n);
  E.push({id:eid++,n:n,o:oz($("xo").value)});svE();$("xn").value="";$("xo").value="";$("xs").value="";rE();$("xn").focus();
 }
 $("xa").onclick=addE;
@@ -364,6 +368,7 @@ $("xs").oninput=rE;
 $("xi").onclick=function(){$("xp").style.display="block";$("xt").focus()};
 $("xc").onclick=function(){$("xp").style.display="none";$("xt").value=""};
 $("xg").onclick=function(){
+ setTimeout(function(){if(rvList().length)rvS(1)},400);
  var c=0;
  $("xt").value.split(/\n/).forEach(function(l){
   l=l.replace(/^\s*\d+[.)]\s+/,"").trim();
@@ -374,7 +379,7 @@ $("xg").onclick=function(){
  });
  svE();rE();$("xc").onclick();alert(c+" perfumes agregados");
 };
-function xAgg(){var g={},o=[];E.forEach(function(r){var k=nk(r.n);if(!k)return;if(!g[k]){g[k]={n:r.n,o:0,nm:{}};o.push(g[k])}var e=g[k];e.o=Math.round((e.o+(r.o||0))*100)/100;e.nm[r.n]=(e.nm[r.n]||0)+1});
+function xAgg(){var g={},o=[];E.forEach(function(r){var k=ck(r.n);if(!k)return;if(!g[k]){g[k]={n:r.n,o:0,nm:{}};o.push(g[k])}var e=g[k];e.o=Math.round((e.o+(r.o||0))*100)/100;e.nm[r.n]=(e.nm[r.n]||0)+1});
  o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});return o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))})}
 $("xcp").onclick=function(){
  var txt="LISTA DE "+CFG.n.toUpperCase()+"\n"+new Date().toLocaleDateString("es-DO",{day:"numeric",month:"long",year:"numeric"})+"\n\n",t=0;
@@ -764,7 +769,7 @@ function oS(r){
  w.appendChild(fld("Cliente",cn));w.appendChild(fld("Entrega estimada",fe));w.appendChild(fld("Método de entrega",me));
  var L=mk("div"),tt=mk("div","big sm"),lines=r.i.map(function(x){return{p:x.p,q:x.q,pr:x.pr||0}});
  function calc(){var s=0;lines.forEach(function(l){s+=l.q*l.pr});var d=Math.min(num(dc.value),s);tt.textContent=s?"Total "+CUR+" "+fmt(s-d)+(d?" (subtotal "+CUR+" "+fmt(s)+" − desc. "+CUR+" "+fmt(d)+")":""):"Sin precios"}
- function draw(){L.innerHTML="";lines.forEach(function(l,ix){var row=mk("div","row"),p=inp("text","Perfume",l.p,{list:"esl"}),q=inp("text","Oz",fo(l.q),{inputmode:"decimal"}),pr=inp("text","Precio",l.pr?fmt(l.pr):"",{inputmode:"numeric"});
+ function draw(){L.innerHTML="";lines.forEach(function(l,ix){var row=mk("div","row"),p=acA(inp("text","Perfume",l.p,{autocomplete:"off"})),q=inp("text","Oz",fo(l.q),{inputmode:"decimal"}),pr=inp("text","Precio",l.pr?fmt(l.pr):"",{inputmode:"numeric"});
   p.style.flex="1";q.style.width="54px";pr.style.width="88px";
   p.onchange=function(){l.p=p.value.trim();var f=fprod(l.p);if(f&&f.r.pv&&!l.pr){l.pr=f.r.pv;pr.value=fmt(l.pr)}calc()};
   q.oninput=function(){l.q=oz(q.value)||1;calc()};pr.oninput=function(){money(pr);l.pr=num(pr.value);calc()};
@@ -799,7 +804,7 @@ function mvS(r){var w=mk("div"),q=inp("search","Buscar movimientos…",""),L=mk(
  q.oninput=dr;if(!r)w.appendChild(q);w.appendChild(L);dr();sheet(r?"Movimientos de "+r.n:"Movimientos de inventario",w)}
 $("xmv").onclick=function(){mvS(null)};
 function eS(r){
- var w=mk("div"),n=inp("text","",r.n),mr=inp("text","",r.mr||""),ct=inp("text","Hombre, Mujer, Unisex…",r.ct||""),ds=inp("text","",r.ds||""),pv=inp("text","",r.pv?fmt(r.pv):"",{inputmode:"numeric"}),mn=inp("text","0 = sin alerta",r.mn?fo(r.mn):"",{inputmode:"decimal"}),uf=inp("text","Por defecto "+CFG.ozf,r.uf?fo(r.uf):"",{inputmode:"decimal"}),qy=inp("text","",fo(r.o),{inputmode:"decimal"}),nt=inp("text","Si cambias la cantidad");
+ var w=mk("div"),n=acA(inp("text","",r.n,{autocomplete:"off"})),mr=inp("text","",r.mr||""),ct=inp("text","Hombre, Mujer, Unisex…",r.ct||""),ds=inp("text","",r.ds||""),pv=inp("text","",r.pv?fmt(r.pv):"",{inputmode:"numeric"}),mn=inp("text","0 = sin alerta",r.mn?fo(r.mn):"",{inputmode:"decimal"}),uf=inp("text","Por defecto "+CFG.ozf,r.uf?fo(r.uf):"",{inputmode:"decimal"}),qy=inp("text","",fo(r.o),{inputmode:"decimal"}),nt=inp("text","Si cambias la cantidad");
  pv.oninput=function(){money(pv)};
  [["Nombre",n],["Marca",mr],["Categoría",ct],["Descripción",ds],["Precio de venta por oz",pv],["Stock mínimo (oz)",mn],["Cantidad disponible (oz)",qy],["Motivo del ajuste",nt]].forEach(function(o){w.appendChild(fld(o[0],o[1]))});
  var im0=r.im||"",ib=mk("button","g",im0?"Cambiar imagen":"Elegir imagen"),ix=mk("button","g","Quitar imagen");ib.onclick=function(){imgPick(160,"image/jpeg",function(u){im0=u;toast("Imagen lista: toca Guardar")})};ix.onclick=function(){im0="";toast("Imagen quitada: toca Guardar")};var ir=mk("div","foot");ir.style.padding="4px 0";ir.appendChild(ib);ir.appendChild(ix);w.appendChild(ir);
@@ -965,7 +970,7 @@ if(SS){stat("pend");setTimeout(check,400)}else stat("none");
 
 /* ===== lista consolidada para el distribuidor ===== */
 var DXS={0:true,3:true,1:false};
-function dxAgg(){var g={},o=[];P.forEach(function(r){if(!DXS[r.s])return;r.i.forEach(function(x){if(!x.p||!(x.q>0))return;var k=nk(x.p);
+function dxAgg(){var g={},o=[];P.forEach(function(r){if(!DXS[r.s])return;r.i.forEach(function(x){if(!x.p||!(x.q>0))return;var k=ck(x.p);
  if(!g[k]){g[k]={n:x.p,q:0,cl:[],nm:{}};o.push(g[k])}var e=g[k];e.q=Math.round((e.q+x.q)*100)/100;e.nm[x.p]=(e.nm[x.p]||0)+1;e.cl.push(r.c+" ("+qz(x.q)+")")})});
  o.forEach(function(e){var b=e.n,c=0;for(var k in e.nm)if(e.nm[k]>c){c=e.nm[k];b=k}e.n=b});
  return o.sort(function(a,b){return nk(a.n).localeCompare(nk(b.n))})}
@@ -1069,6 +1074,60 @@ function kD(k){var cs=CU.filter(function(c){return c.cid===k.id}).sort(function(
  cs.forEach(function(c){t+=sal(c);ab+=abn(c);m+=c.m});var it=(pen.length?pen:cs).map(function(c){return[c.c+" · "+fds(c.t),CUR+" "+fmt(sal(c))]});
  return{tt:"Estado de cuenta",no:"",fe:fdl(Date.now()),rows:[["Cliente",k.n]].concat(k.tel?[["Teléfono",k.tel]]:[]),ih:pen.length?"Cuentas pendientes":"Cuentas",items:it,
   before:[["Total comprado",CUR+" "+fmt(m)],["Total abonado",CUR+" "+fmt(ab)]],tot:["Total pendiente",CUR+" "+fmt(t)],ft:t>0?"Gracias por su preferencia":"Todo al día · gracias"}}
+
+/* ===== nombres de perfumes: autocompletar y corrección ===== */
+var CATR="1 Million|Paco Rabanne\n1 Million Elixir|Paco Rabanne\n1 Million Lucky|Paco Rabanne\n1 Million Night Elixir|Paco Rabanne\n1 Million Privé|Paco Rabanne\n212 Heroes|Carolina Herrera\n212 Men|Carolina Herrera\n212 Sexy|Carolina Herrera\n212 Sexy Men|Carolina Herrera\n212 VIP Black|Carolina Herrera\n212 VIP Black Cab|Carolina Herrera\n212 VIP Men|Carolina Herrera\n212 VIP Rosé|Carolina Herrera\n212 VIP Rosé Elixir|Carolina Herrera\n212 VIP Wild Party|Carolina Herrera\n360|Perry Ellis\n360 Red|Perry Ellis\n5th Avenue|Elizabeth Arden\n9 PM|Afnan\n9 PM pour Femme|Afnan\n9 PM Rebel|Afnan\n9PM Night Out|Afnan\nAcqua di Giò|Giorgio Armani\nAcqua di Giò Profondo|Giorgio Armani\nAcqua di Giò Profumo|Giorgio Armani\nAcqua di Gioia|Giorgio Armani\nAjwad|Lattafa\nAlexandria II|Xerjoff\nAllure Homme Sport|Chanel\nAlthaïr|Parfums de Marly\nAmarige|Givenchy\nAmber Oud Aqua Dubai|Al Haramain\nAmber Oud Gold Edition|Al Haramain\nAmber Romance|Victoria's Secret\nAmber Rouge|Orientica\nAmor Amor|Cacharel\nAnaïs Anaïs L'Original|Cacharel\nAnge ou Démon|Givenchy\nAngel|Thierry Mugler\nAngel Men (A*Men)|Thierry Mugler\nAngels' Share|Kilian\nAnother 13|Le Labo\nArabians|Montale\nArabians Tonka|Montale\nArmani Code Parfum|Giorgio Armani\nArsenal|Gilles Cantuel\nArt of Universe|Lattafa\nAsad|Lattafa\nAsad Bourbon|Lattafa\nAsad Elixir|Lattafa\nAsad Zanzibar|Lattafa\nAttimo pour Homme|Salvatore Ferragamo\nAventus|Creed\nAzzaro pour Homme|Azzaro\nBaccarat Rouge 540|Maison Francis Kurkdjian\nBad|Diesel\nBad Boy|Carolina Herrera\nBad Boy Cobalt|Carolina Herrera\nBad Boy Dazzling Garden|Carolina Herrera\nBadee Al Oud Noble Blush|Lattafa\nBal d'Afrique|Byredo\nBerry on Top|Lattafa\nBharara Rose|Bharara\nBianco Latte|Giardini di Toscana\nBlack Opium|Yves Saint Laurent\nBlack XS|Paco Rabanne\nBlack XS L'Excès|Paco Rabanne\nBleecker Street|Bond No 9\nBleu de Chanel|Chanel\nBleu de Chanel L'Exclusif|Chanel\nBlue Label|Givenchy\nBlue Seduction|Antonio Banderas\nBlue Talisman|Ex Nihilo\nBombshell|Victoria's Secret\nBonbon|Viktor & Rolf\nBorn in Roma Donna|Valentino\nBorn in Roma Donna Extradose|Valentino\nBorn in Roma Donna Yellow Dream|Valentino\nBorn in Roma Uomo|Valentino\nBorn in Roma Uomo Extradose|Valentino\nBorn in Roma Uomo Intense|Valentino\nBoss Bottled|Hugo Boss\nBoss Bottled Night|Hugo Boss\nBoss Bottled Unlimited|Hugo Boss\nBoss Woman|Hugo Boss\nBright Crystal|Versace\nBurberry Her|Burberry\nBurberry Hero|Burberry\nCactus Garden|Louis Vuitton\nCan Can|Paris Hilton\nCan Can Burlesque|Paris Hilton\nCandy Rose|Montale\nCedrat Boise|Mancera\nCH Beauties|Carolina Herrera\nCH Men|Carolina Herrera\nChance|Chanel\nCheirosa 40|Sol de Janeiro\nCheirosa 59|Sol de Janeiro\nCheirosa 62|Sol de Janeiro\nCheirosa 68|Sol de Janeiro\nCheirosa 71|Sol de Janeiro\nCheirosa 87|Sol de Janeiro\nChocolate Greedy|Montale\nCK IN2U|Calvin Klein\nCK One Shock for Him|Calvin Klein\nClassique|Jean Paul Gaultier\nCloud|Ariana Grande\nCloud Pink|Ariana Grande\nClub de Nuit Intense Man|Armaf\nClub de Nuit Precieux|Armaf\nClub de Nuit Untold|Armaf\nCoco Eau de Parfum|Chanel\nCoco Mademoiselle|Chanel\nCoconut Passion|Victoria's Secret\nCookie Crave|Lattafa\nCool Water|Davidoff\nCorvus|Ahli\nCosta Azzurra Acqua|Tom Ford\nDania|Orientica\nDark Blue|Hugo Boss\nDark Vanilla|Montale\nDazzle|Paris Hilton\nDéclaration|Cartier\nDelina|Parfums de Marly\nDevotion|Dolce & Gabbana\nDivine|Jean Paul Gaultier\nDylan Blue|Versace\nDylan Blue pour Femme|Versace\nEau de Cartier|Cartier\nEclaire|Lattafa\nEclaire Pistache|Lattafa\nElysium pour Femme|Roja Parfums\nElysium pour Homme|Roja Parfums\nEmblem|Montblanc\nErba Pura|Xerjoff\nEros|Versace\nEros Energy|Versace\nEros Flame|Versace\nEros Najim|Versace\nEros pour Femme|Versace\nEssential|Lacoste\nEternity|Calvin Klein\nEternity for Men|Calvin Klein\nEuphoria|Calvin Klein\nExplorer|Montblanc\nFahrenheit|Dior\nFame|Paco Rabanne\nFantasy|Britney Spears\nFantasy in Bloom|Britney Spears\nFlower by Kenzo|Kenzo\nFuel for Life|Diesel\nGame of Spades All In|Jo Milano\nGame of Spades Double Bonus|Jo Milano\nGame of Spades King|Jo Milano\nGame of Spades Royale|Jo Milano\nGame of Spades Wildcard|Jo Milano\nGold Fresh Couture|Moschino\nGood Girl|Carolina Herrera\nGood Girl Blush|Carolina Herrera\nGood Girl Légère|Carolina Herrera\nGood Girl Supreme|Carolina Herrera\nGreen Irish Tweed|Creed\nGreenwich Village|Bond No 9\nGucci Guilty|Gucci\nGuess Gold|Guess\nGuilty pour Homme|Gucci\nHalloween|Jesús del Pozo\nHalloween Man|Jesús del Pozo\nHappy|Clinique\nHawas Ice Fire|Rasasi\nHawas Ice for Him|Rasasi\nHawas Tropical|Rasasi\nHeiress|Paris Hilton\nHer Confession|Lattafa\nHerod|Parfums de Marly\nHigh Frequency|Initio Parfums\nHimalaya|Creed\nHis Confession|Lattafa\nHoney Aoud|Montale\nHonor & Glory|Lattafa\nHugo XX|Hugo Boss\nIl Femme|ILMIN\nIl Kakuno|ILMIN\nIl Orgasme|ILMIN\nImagination|Louis Vuitton\nImpact|Tommy Hilfiger\nIncanto Charms|Salvatore Ferragamo\nInterlude Man|Amouage\nInvictus|Paco Rabanne\nInvictus Aqua|Paco Rabanne\nInvictus Intense|Paco Rabanne\nInvictus Onix|Paco Rabanne\nInvictus Victory|Paco Rabanne\nInvictus Victory Elixir|Paco Rabanne\nIsland Bliss|Armaf\nItalica|Xerjoff\nJ'adore|Dior\nJoop Homme|Joop\nK|Dolce & Gabbana\nKarpos|Ahli\nKhamrah|Lattafa\nKhamrah Dukhan|Lattafa\nKhamrah Qahwa|Lattafa\nKing|Bharara\nKing of Seduction|Antonio Banderas\nKing Soleil|Bharara\nL'Eau d'Issey|Issey Miyake\nL'Eau d'Issey Rose&Rose|Issey Miyake\nL'Eau d'Issey Sport|Issey Miyake\nL'Immensité|Louis Vuitton\nL'Impératrice|Dolce & Gabbana\nL.12.12 Blanc|Lacoste\nL.12.12 Noir|Lacoste\nLa Bomba|Carolina Herrera\nLa Vie Est Belle|Lancôme\nLa Vie Est Belle Soleil Cristal|Lancôme\nLady Million|Paco Rabanne\nLady Million Lucky|Paco Rabanne\nLady Million Royale|Paco Rabanne\nLafayette Street|Bond No 9\nLail Maleki|Lattafa\nLayton|Parfums de Marly\nLe Beau|Jean Paul Gaultier\nLe Gemme Tygar|Bvlgari\nLe Male Elixir|Jean Paul Gaultier\nLegend|Montblanc\nLegend Night|Montblanc\nLegend pour Femme|Montblanc\nLegend Red|Montblanc\nLegend Spirit|Montblanc\nLes Sables Roses|Louis Vuitton\nLibre Berry Crush|Yves Saint Laurent\nLight Blue|Dolce & Gabbana\nLionheart|Armaf\nLolita|Lolita Lempicka\nLost Cherry|Tom Ford\nLove Spell|Victoria's Secret\nMad About You|Bath & Body Works\nMagnetic|Lacoste\nMan Extreme|Bvlgari\nMan in Black|Bvlgari\nMan Wood Essence|Bvlgari\nMayar|Lattafa\nMeow|Katy Perry\nMillésime Impérial|Creed\nMiss Dior|Dior\nMoschino Funny|Moschino\nMusk Therapy|Initio Parfums\nMussaman Black Intense|Lattafa\nMussaman White Intense|Lattafa\nMy Way|Giorgio Armani\nN°5|Chanel\nNautica Voyage|Nautica\nNaxos|Xerjoff\nNew York Amber|Bond No 9\nNew York City of Dreams|Lattafa\nNew York Nights|Bond No 9\nNiche|Bharara\nNitro Pour Homme|Dumont\nNitro Red|Dumont\nNitro Red Intensely|Dumont\nNo Limits|Philipp Plein\nNolita|Bond No 9\nNoMad|Bond No 9\nOdyssey Acqua|Armaf\nOdyssey Artisto|Armaf\nOdyssey Ba Ha Mas|Armaf\nOdyssey Candee|Armaf\nOdyssey Go Mango|Armaf\nOdyssey Mandarin Sky|Armaf\nOdyssey Marshmallow|Armaf\nOdyssey Mega|Armaf\nOlympéa|Paco Rabanne\nOmbré Leather|Tom Ford\nOmbre Nomade|Louis Vuitton\nOmnia Coral|Bvlgari\nOmnia Crystalline|Bvlgari\nOnly the Brave|Diesel\nOnly the Brave Tattoo|Diesel\nOnyx|Bharara\nOpera|Sospiro Parfums\nOrange Marmalade|Jo Malone\nOriginal Santal|Creed\nOud Amethyst|Lattafa\nOud for Glory|Lattafa\nOud Saffron|Orientica\nOud Sublime|Lattafa\nOud Wood|Tom Ford\nPacific Chill|Louis Vuitton\nPalatine|Parfums de Marly\nParadoxe|Prada\nParis Hilton for Men|Paris Hilton\nPear Glacé|Victoria's Secret\nPegasus|Parfums de Marly\nPhantom|Paco Rabanne\nPhantom in Red|Paco Rabanne\nPi|Givenchy\nPineapple (Fruit Collection)|Dolce & Gabbana\nPink Pretty and Pure|Victoria's Secret\nPlus Plus|Diesel\nPoison|Dior\nPolo Blue|Ralph Lauren\nPolo Red|Ralph Lauren\nPolo Sport|Ralph Lauren\nPour Homme|Versace\nPour Homme Intenso|Dolce & Gabbana\nPower of You|Giorgio Armani\nPrada Candy|Prada\nPure Seduction|Victoria's Secret\nPure XS|Paco Rabanne\nQaa'ed|Lattafa\nRalph|Ralph Lauren\nRed|Lacoste\nRed Tobacco|Mancera\nRolling in Love|Kilian\nRoyal Amber|Orientica\nSantal 33|Le Labo\nSantos de Cartier|Cartier\nSauvage|Dior\nSauvage Elixir|Dior\nScandal|Jean Paul Gaultier\nScandal Le Parfum Intense|Jean Paul Gaultier\nScandalous|Victoria's Secret\nSecret Obsession|Calvin Klein\nShaheen Gold|Lattafa\nSì|Giorgio Armani\nSignature|Bond No 9\nSignature for Her|David Beckham\nSilver Mountain Water|Creed\nSmoking Hot|Kilian\nSong of Oud|Ajmal\nSpicebomb|Viktor & Rolf\nStarwalker|Montblanc\nStronger With You|Emporio Armani\nStronger With You Leather|Emporio Armani\nSummer Hammer|Lorenzo Pazzaglia\nSweet Like Candy|Ariana Grande\nSwiss Army Classic|Victorinox\nTeriaq|Lattafa\nTerre d'Hermès|Hermès\nThank U Next|Ariana Grande\nThe Most Wanted|Azzaro\nThe One|Dolce & Gabbana\nThe One for Men|Dolce & Gabbana\nThe Scent|Hugo Boss\nThe Scent of Peace|Bond No 9\nTobacco Vanille|Tom Ford\nTommy Girl|Tommy Hilfiger\nTony Iommi|Xerjoff\nTorino 21|Xerjoff\nTouch of Pink|Lacoste\nToy 2|Moschino\nToy 2 Bubble Gum|Moschino\nToy 2 Gummy|Moschino\nToy 2 Pearl|Moschino\nToy 2 Yummy|Moschino\nToy Boy|Moschino\nTriBeCa|Bond No 9\nUltra Male|Jean Paul Gaultier\nUltraviolet|Paco Rabanne\nUomo|Valentino\nVanilla Freak|Lattafa\nVanilla Lace|Victoria's Secret\nVanilla Oud (Oudgasm)|Kayali\nVanilla Skin|Phlur\nVanilla Suede|Ariana Grande\nVega|Ahli\nVelvet Gold|Orientica\nVersace Man Eau Fraîche|Versace\nVery Good Girl|Carolina Herrera\nViking|Creed\nVulcan Feu|French Avenue\nWestside|Bond No 9\nWild Madagascar Vanilla|Bath & Body Works\nY|Yves Saint Laurent\nYara|Lattafa\nYara Candy|Lattafa\nYara Elixir|Lattafa\nYara Moi|Lattafa\nYara Tous|Lattafa\nYellow Diamond|Versace\nYum Yum|Armaf",CAT=[];
+function nn(s){return nk(String(s||"").replace(/&/g," ")).replace(/[^a-z0-9]+/g," ").trim()}
+var ALI=[["one million","1 million"],["jpg","jean paul gaultier"],["ysl","yves saint laurent"],["ch","carolina herrera"],["pdm","parfums de marly"],["mfk","maison francis kurkdjian"],["tf","tom ford"],["ck","calvin klein"],["dyg","dolce gabbana"],["d g","dolce gabbana"],["vs","victoria s secret"],["lv","louis vuitton"],["aqua di gio","acqua di gio"],["bond 9","bond no 9"],["bond n 9","bond no 9"],["b r 540","baccarat rouge 540"],["br 540","baccarat rouge 540"]];
+function qn(s){var t=" "+nn(s)+" ";t=t.replace(/ one (mil)/g," 1 $1");ALI.forEach(function(a){t=t.split(" "+a[0]+" ").join(" "+a[1]+" ")});return t.trim()}
+function fullN(n,b){var a=nn(n),c=nn(b);return a.indexOf(c.split(" ")[0])===0||a.indexOf(c)>-1?n:b+" "+n}
+CATR.split("\n").forEach(function(l,i){var p=l.split("|");if(!p[0])return;var t=fullN(p[0],p[1]);var bt=nn(p[1]).split(" ");CAT.push({id:"c"+i,t:t,b:p[1],n:nn(p[0]),f:nn(t),s:bt.concat(nn(p[0]).split(" ")),bl:bt.length,src:"cat"})});
+var CIX={};CAT.forEach(function(c){CIX[c.f]=c;if(!CIX[c.n])CIX[c.n]=c});
+function lev(a,b){if(a===b)return 0;var m=a.length,n=b.length,d=[],i,j;if(!m)return n;if(!n)return m;for(i=0;i<=m;i++){d[i]=[i];}for(j=0;j<=n;j++)d[0][j]=j;
+ for(i=1;i<=m;i++)for(j=1;j<=n;j++){var c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1)}return d[m][n]}
+function tsim(q,c,last){if(q===c)return 1;var nq=/^\d+$/.test(q);if(nq||/^\d+$/.test(c))return c.indexOf(q)===0&&(last||q.length>=2)?.95:0;
+ if(c.indexOf(q)===0&&(last||q.length>=3))return .95;if(q.length<3)return 0;var r=1-lev(q,c)/Math.max(q.length,c.length);
+ if(last&&c.length>q.length){var r2=1-lev(q,c.slice(0,q.length))/q.length;if(r2>r)r=r2*.92}return r}
+var GEN={};"elixir intense intensely parfum perfume eau de du des toilette edp edt extrait pour homme femme le la les l the of extreme absolu edition noir black blue red gold rose sport men man woman women for him her in uomo donna pure night nights new limited".split(" ").forEach(function(w){GEN[w]=1});
+function scr(qt,c){var ct=c.s,bl=c.bl||0;if(!qt.length)return 0;var tot=0,used={},key=0;for(var i=0;i<qt.length;i++){var b=0,bj=-1;for(var j=0;j<ct.length;j++){if(used[j])continue;var v=tsim(qt[i],ct[j],i===qt.length-1);if(v>b){b=v;bj=j}}if(b<.7)return 0;used[bj]=1;tot+=b;if(bj>=bl&&!GEN[ct[bj]]&&!/^\d+$/.test(ct[bj]))key=1}
+ var ex=0;for(var k=bl;k<ct.length;k++)if(!used[k])ex++;var v2=tot/qt.length-.035*ex;scr.key=key;return v2}
+function hist(){var o={},a=[];LS.forEach(function(l){l.items.forEach(function(r){var k=nn(r.n);if(k&&!o[k]&&!CIX[qn(r.n)]){o[k]=1;a.push({t:r.n,f:k,s:k.split(" "),src:"hist"})}})});
+ P.forEach(function(r){r.i.forEach(function(x){var k=nn(x.p);if(k&&!o[k]&&!CIX[qn(x.p)]){o[k]=1;a.push({t:x.p,f:k,s:k.split(" "),src:"hist"})}})});return a}
+function srch(q,lim){var qt=qn(q).split(" ").filter(Boolean),r=[];if(!qt.length)return r;
+ CAT.concat(hist()).forEach(function(c){var v=scr(qt,c);if(v>0){var ky=scr.key;if(c.src==="cat"&&(c.n===qt.join(" ")||c.f===qt.join(" ")))v+=.1;r.push({c:c,v:v,k:ky})}});
+ r.sort(function(a,b){return b.v-a.v||a.c.t.length-b.c.t.length});return r.slice(0,lim||6)}
+function ck(n){var c=CIX[qn(n)];return c?c.id:nn(n)}
+function okN(){try{return JSON.parse(localStorage.getItem("nombres-ok-v1")||"{}")}catch(e){return{}}}
+function cfix(n){var k=qn(n);if(!k||CIX[k]||okN()[nn(n)])return null;var r=srch(n,3).filter(function(x){return x.c.src==="cat"});if(!r.length||r[0].v<.8||!r[0].k)return null;if(r[1]&&r[1].v>=r[0].v-.02&&r[1].c.t!==r[0].c.t)return null;return r[0].c.t}
+function noAsk(n){var o=okN();o[nn(n)]=1;try{localStorage.setItem("nombres-ok-v1",JSON.stringify(o))}catch(e){}}
+function askFix(n){var f=cfix(n);if(!f||nn(f)===nn(n))return n;if(confirm("¿Quisiste decir «"+f+"»?\n\nAceptar: corregir el nombre\nCancelar: dejar «"+n+"»"))return f;noAsk(n);return n}
+var ACP=document.createElement("div");ACP.className="acp";document.body.appendChild(ACP);var ACI=null,ACT=0;
+function acHide(){ACP.style.display="none";ACI=null}
+function acShow(el){var v=el.value.trim();if(v.length<2){acHide();return}var r=srch(v,6);if(!r.length||(r.length===1&&nn(r[0].c.t)===nn(v))){acHide();return}
+ ACI=el;ACP.innerHTML="";r.forEach(function(x){var it=document.createElement("div"),b=document.createElement("b"),sm=document.createElement("small");b.textContent=x.c.t;sm.textContent=x.c.src==="cat"?"Catálogo Maison Saldana":"Usado antes";it.appendChild(b);it.appendChild(sm);
+  var pick=function(e){if(e)e.preventDefault();el.value=x.c.t;acHide();el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}))};
+  it.addEventListener("pointerdown",pick);it.addEventListener("mousedown",function(e){e.preventDefault()});ACP.appendChild(it)});
+ var rc=el.getBoundingClientRect(),vv=window.visualViewport,vh=vv?vv.height+vv.offsetTop:window.innerHeight,w=Math.max(rc.width,260),l=Math.min(rc.left,window.innerWidth-w-8);
+ ACP.style.left=Math.max(8,l)+"px";ACP.style.width=w+"px";ACP.style.display="block";var h=ACP.offsetHeight||200;
+ ACP.style.top=(vh-rc.bottom>h+8||rc.top<h+8?rc.bottom+4:rc.top-h-4)+"px"}
+function acA(el){el.setAttribute("autocomplete","off");el.setAttribute("autocorrect","off");el.removeAttribute("list");
+ el.addEventListener("input",function(){clearTimeout(ACT);ACT=setTimeout(function(){if(document.activeElement===el)acShow(el)},120)});
+ el.addEventListener("blur",function(){setTimeout(function(){if(ACI===el)acHide()},180)});
+ el.addEventListener("keydown",function(e){if(e.key==="Escape")acHide()});return el}
+acA($("pp"));acA($("xn"));window.addEventListener("scroll",function(){if(ACI)acShow(ACI)},true);if(window.visualViewport)visualViewport.addEventListener("resize",function(){if(ACI)acShow(ACI)});
+function rvList(){var m={},a=[];function see(n){var k=nn(n);if(!k||m[k])return;m[k]=1;var f=cfix(n);if(f&&nn(f)!==k)a.push({o:n,f:f,c:0})}
+ LS.forEach(function(l){l.items.forEach(function(r){see(r.n)})});P.forEach(function(r){r.i.forEach(function(x){see(x.p)})});
+ a.forEach(function(x){var k=nn(x.o);LS.forEach(function(l){l.items.forEach(function(r){if(nn(r.n)===k)x.c++})});P.forEach(function(r){r.i.forEach(function(y){if(nn(y.p)===k)x.c++})})});return a}
+function rvS(auto){var a=rvList(),w=mk("div");if(!a.length){if(!auto)toast("Todos los nombres se ven bien");return}
+ w.appendChild(mk("div","sub",auto?"Encontré nombres que parecen mal escritos en lo que importaste. Marca los que quieres corregir.":"Estos nombres se parecen a perfumes del catálogo. Marca los que quieres corregir en todas tus listas y pedidos."));
+ var ch=[];a.forEach(function(x){var r=mk("label","tr");r.style.cssText="gap:10px;align-items:center;padding:8px 0;cursor:pointer";var cb=document.createElement("input");cb.type="checkbox";cb.checked=true;cb.style.cssText="width:20px;height:20px;flex:0 0 auto";
+  var tx=mk("div");tx.appendChild(mk("div","",x.o+"  →"));var b=mk("b","",x.f);tx.appendChild(b);if(x.c>1)tx.appendChild(mk("div","sub",x.c+" veces"));tx.style.flex="1";r.appendChild(cb);r.appendChild(tx);w.appendChild(r);ch.push([cb,x])});
+ var f=foot(),ok=mk("button","","Corregir marcados"),no=mk("button","g","Ahora no");
+ ok.onclick=function(){var n=0;ch.forEach(function(q){var x=q[1],k=nn(x.o);if(!q[0].checked){noAsk(x.o);return}
+   LS.forEach(function(l){l.items.forEach(function(r){if(nn(r.n)===k){r.n=x.f;n++}})});P.forEach(function(r){r.i.forEach(function(y){if(nn(y.p)===k){y.p=x.f;n++}})});lg("inventario","Nombre corregido",x.f,x.o+" → "+x.f)});
+  sv("listas-perfumes-v1",LS);sv("pedidos-v1",P);E=cl().items;shx();rE();toast(n+" nombre(s) corregido(s)")};
+ no.onclick=shx;f.appendChild(ok);f.appendChild(no);w.appendChild(f);sheet("Revisar nombres",w)}
+$("xrv").onclick=function(){rvS(0)};
 
 applyCfg();
 
