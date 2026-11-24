@@ -561,6 +561,7 @@ function ci(c){
  if(n){var bh=mk("button","g","Pagos ("+n+")");bh.onclick=function(){oc[c.id]=!oc[c.id];rC1()};a.appendChild(bh);
   var br=mk("button","g","Comprobante");br.onclick=function(){var l=c.ab.filter(function(z){return!z.x});if(l.length)rcp(c,l[l.length-1]);else toast("No hay pagos activos",1)};a.appendChild(br)}
  if(s>0){var bw=mk("button","g","WhatsApp");bw.onclick=function(){wa2(cof(c).tel,"Hola "+cname(c)+", te escribo de "+CFG.n+". Tienes un saldo pendiente de "+CUR+" "+fmt(s)+" por "+c.c+". ¡Gracias!")};a.appendChild(bw)}
+ var bim=mk("button","g","Enviar imagen");bim.onclick=function(){imgS(n?"Estado de cuenta":"Factura",ecD(c),(n?"estado-":"factura-")+String(c.id).slice(-6).toUpperCase(),cof(c).tel)};a.appendChild(bim);
  var be=mk("button","g","Editar");be.onclick=function(){editS(c)};a.appendChild(be);d.appendChild(a);
  if(oc[c.id]&&n){var h=mk("div","hist");c.ab.slice().reverse().forEach(function(z){
   var l=mk("div","h"),dd=mk("div","d"),bb=mk("b","",CUR+" "+fmt(z.a));
@@ -607,6 +608,7 @@ function kS(k){
  f.appendChild(ok);
  if(k){var bn=mk("button","g","Nueva cuenta");bn.onclick=function(){newS(k.n)};f.appendChild(bn);
   var bw=mk("button","g","WhatsApp");bw.onclick=function(){wa2(k.tel,"Hola "+k.n+", te escribo de "+CFG.n+".")};f.appendChild(bw);
+  var bk=mk("button","g","Estado de cuenta (imagen)");bk.onclick=function(){if(!CU.some(function(c){return c.cid===k.id})){toast("Este cliente no tiene cuentas",1);return}imgS("Estado de cuenta",kD(k),"estado-"+nk(k.n).replace(/[^a-z0-9]+/g,"-"),k.tel)};f.appendChild(bk);
   var bd=mk("button","g","Eliminar");bd.onclick=function(){if(CU.some(function(c){return c.cid===k.id})){toast("Tiene cuentas registradas: no se puede eliminar",1);return}if(confirm("¿Eliminar a "+k.n+"?")){CL=CL.filter(function(z){return z!==k});svC();shx();rC();toast("Cliente eliminado")}};f.appendChild(bd)}
  w.appendChild(f);
  if(k){
@@ -1035,6 +1037,15 @@ function imgS(tl,D,nm,tel){var w=mk("div"),pv=mk("div","sub","Preparando imagen�
  bs.onclick=function(){if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:tl}).catch(function(){})}else{toast("Guarda la imagen y adjúntala en WhatsApp");wa2(tel||"","")}};
  bd.onclick=function(){var a=document.createElement("a");a.href=url;a.download=nm+".png";document.body.appendChild(a);a.click();a.remove()}}
 $("xim").onclick=function(){if(!E.length){toast("La lista está vacía",1);return}imgS("Lista de perfumes",liD(),"lista-"+ymd(Date.now()))};
+
+function ecD(c){var s=sal(c),ab=c.ab.filter(function(e){return!e.x}),a0=abn(c),D={tt:ab.length?"Estado de cuenta":"Factura",no:"No. "+String(c.id).slice(-6).toUpperCase(),fe:fdl(c.t),
+ rows:[["Cliente",cname(c)],["Concepto",c.c]],ft:s>0?"Gracias por su preferencia":"Cuenta saldada · gracias por su pago"};
+ if(ab.length){D.ih="Abonos recibidos";D.items=ab.map(function(e){return[fds(e.t)+" · "+e.mt,CUR+" "+fmt(e.a)]});D.before=[["Monto original",CUR+" "+fmt(c.m)],["Total abonado",CUR+" "+fmt(a0)]]}
+ D.tot=[s>0?(ab.length?"Saldo pendiente":"Total a pagar"):"Saldo",CUR+" "+fmt(s)];return D}
+function kD(k){var cs=CU.filter(function(c){return c.cid===k.id}).sort(function(a,b){return a.t-b.t}),pen=cs.filter(function(c){return sal(c)>0}),t=0,ab=0,m=0;
+ cs.forEach(function(c){t+=sal(c);ab+=abn(c);m+=c.m});var it=(pen.length?pen:cs).map(function(c){return[c.c+" · "+fds(c.t),CUR+" "+fmt(sal(c))]});
+ return{tt:"Estado de cuenta",no:"",fe:fdl(Date.now()),rows:[["Cliente",k.n]].concat(k.tel?[["Teléfono",k.tel]]:[]),ih:pen.length?"Cuentas pendientes":"Cuentas",items:it,
+  before:[["Total comprado",CUR+" "+fmt(m)],["Total abonado",CUR+" "+fmt(ab)]],tot:["Total pendiente",CUR+" "+fmt(t)],ft:t>0?"Gracias por su preferencia":"Todo al día · gracias"}}
 
 applyCfg();
 
