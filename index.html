@@ -281,6 +281,7 @@ function oi(r){
  if(nx!==undefined){var bn=mk("button","","Pasar a "+ES[nx].toLowerCase());bn.onclick=function(){if(setS(r,nx)){rP();toast(ES[nx])}};a.appendChild(bn)}
  var bd=mk("button","g","Detalle");bd.onclick=function(){oS(r)};a.appendChild(bd);
  var bw=mk("button","g","WhatsApp");bw.onclick=function(){wa2((cli(r.c,false)||{}).tel,ptxt(r))};a.appendChild(bw);
+ var bx=mk("button","g","Borrar");bx.style.cssText="margin-left:auto;color:var(--bad);border-color:var(--bad)";bx.setAttribute("aria-label","Borrar pedido de "+r.c);bx.onclick=function(){delP(r)};a.appendChild(bx);
  d.appendChild(a);return d}
 function rP(){
  var q=$("ps").value.trim().toLowerCase(),L=$("pl");L.innerHTML="";dl();
@@ -798,7 +799,7 @@ function oS(r){
  var bw=mk("button","g","WhatsApp");bw.onclick=function(){wa2((cli(r.c,false)||{}).tel,ptxt(r))};f.appendChild(bw);
  var bi=mk("button","g","Enviar como imagen");bi.onclick=function(){imgS("Pedido "+r.no,peD(r),"pedido-"+r.no,(cli(r.c,false)||{}).tel)};f.appendChild(bi);
  var t0=tot(r);if(t0.t>0&&!r.cu&&r.s!==4){var bc=mk("button","g","Crear cobro por "+CUR+" "+fmt(t0.t));bc.onclick=function(){var k=cli(r.c,true),a={id:uid(),cid:k.id,c:"Pedido "+r.no,t:Date.now(),m:t0.t,ab:[]};CU.push(a);r.cu=a.id;svC();sv("pedidos-v1",P);lg("cobro","Cuenta creada",k.n,"Pedido "+r.no+" · "+CUR+" "+fmt(t0.t));shx();toast("Cobro creado en Cobros")};f.appendChild(bc)}
- if((r.s===0||r.s===4)&&!r.inv){var bd=mk("button","g","Eliminar");bd.onclick=function(){if(confirm("¿Eliminar el pedido "+r.no+"?")){P=P.filter(function(z){return z!==r});lg("pedido","Pedido eliminado",r.c,r.no);sv("pedidos-v1",P);shx();rP()}};f.appendChild(bd)}
+ var bd=mk("button","g","Borrar pedido");bd.style.color="var(--bad)";bd.onclick=function(){shx();delP(r)};f.appendChild(bd);
  w.appendChild(f);sheet("Pedido "+r.no,w)}
 function mvS(r){var w=mk("div"),q=inp("search","Buscar movimientos…",""),L=mk("div");
  function dr(){L.innerHTML="";var k=nk(q.value);MV.filter(function(m){return(!r||nk(m.n)===nk(r.n))&&(!k||nk(m.tp+" "+m.n+" "+m.ref+" "+m.nt).indexOf(k)>-1)}).sort(function(a,b){return b.t-a.t}).slice(0,200).forEach(function(m){var l=mk("div","tr");l.appendChild(mk("span","",m.tp+" · "+m.n+(m.ref?" · "+m.ref:"")+" · "+fd(m.t)));l.appendChild(mk("b","",(m.a>0?"+":"")+fo(m.a)+" oz"));L.appendChild(l)});if(!L.children.length)L.appendChild(mk("div","sub","Sin movimientos"))}
@@ -1129,6 +1130,14 @@ function rvS(auto){var a=rvList(),w=mk("div");if(!a.length){if(!auto)toast("Todo
   sv("listas-perfumes-v1",LS);sv("pedidos-v1",P);E=cl().items;shx();rE();toast(n+" nombre(s) corregido(s)")};
  no.onclick=shx;f.appendChild(ok);f.appendChild(no);w.appendChild(f);sheet("Revisar nombres",w)}
 $("xrv").onclick=function(){rvS(0)};
+
+function delP(r){
+ if(!confirm("¿Borrar el pedido "+r.no+" de "+r.c+"?\n\n"+it2(r)))return;
+ var dev=false;if(r.inv&&r.inv.length){dev=confirm("Este pedido ya se entregó y descontó perfume del inventario.\n\nAceptar: devolver esas oz al inventario\nCancelar: dejar el inventario como está");if(dev)revInv(r,"Pedido borrado "+r.no)}
+ var ix=P.indexOf(r);if(ix<0)return;P.splice(ix,1);sv("pedidos-v1",P);lg("pedido","Pedido eliminado",r.c,r.no+" · "+it2(r)+(dev?" · inventario devuelto":""));E=cl().items;rP();
+ var e=$("ts");e.innerHTML="";e.appendChild(mk("span","","Pedido de "+r.c+" borrado"+(r.cu?" (su cobro sigue en Cobros)":"")+"  "));
+ if(!dev){var u=mk("button","g","Deshacer");u.style.cssText="padding:4px 10px;margin-left:6px";u.onclick=function(){if(P.indexOf(r)<0){P.splice(Math.min(ix,P.length),0,r);sv("pedidos-v1",P);lg("pedido","Pedido restaurado",r.c,r.no);rP()}e.className="toast"};e.appendChild(u)}
+ e.className="toast on";clearTimeout(tmo);tmo=setTimeout(function(){e.className="toast"},6000)}
 
 applyCfg();
 
